@@ -1,3 +1,5 @@
+import org.jooq.codegen.gradle.CodegenTask
+
 buildscript {
     repositories {
         mavenCentral()
@@ -15,6 +17,14 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'org.jooq.jooq-codegen-gradle' version '3.19.8'
     id 'org.flywaydb.flyway' version '11.11.2'
+    id "org.jlleitschuh.gradle.ktlint" version "12.1.1"
+}
+
+ktlint {
+    filter {
+        exclude("**/src/main/generated/**")
+        exclude("**/com/bookmanageapp/jooq/**")
+    }
 }
 
 group = 'com.bookmanageapp'
@@ -73,6 +83,8 @@ dependencies {
     jooqCodegen 'org.jooq:jooq-codegen:3.19.8'
     jooqCodegen 'org.jooq:jooq-meta-extensions:3.19.8'
     jooqCodegen 'org.jooq:jooq-postgres-extensions:3.19.8'
+
+    
 }
 
 kotlin {
@@ -149,7 +161,7 @@ jooq {
 }
 
 // コード生成タスクの依存関係を設定（タスクが存在する場合のみ）
-tasks.withType(org.jooq.codegen.gradle.CodegenTask).configureEach {
+tasks.withType(CodegenTask).configureEach {
     dependsOn 'flywayMigrate'
     
     // 入力として使用するファイルを指定
@@ -161,7 +173,34 @@ tasks.withType(org.jooq.codegen.gradle.CodegenTask).configureEach {
 
 // コンパイル前にJOOQコード生成を実行
 tasks.named('compileKotlin') {
-    mustRunAfter tasks.withType(org.jooq.codegen.gradle.CodegenTask)
+    mustRunAfter tasks.withType(CodegenTask)
 }
 
 sourceSets.main.java.srcDirs += 'src/main/generated'
+
+
+sourceSets {
+    integrationTest {
+        kotlin.srcDir file('src/integrationTest/kotlin')
+        resources.srcDir file('src/integrationTest/resources')
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter 'test'
+}
+
+check.dependsOn integrationTest
+
+
