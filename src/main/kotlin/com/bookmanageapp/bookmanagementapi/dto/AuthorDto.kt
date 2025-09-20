@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Past
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class CreateAuthorRequest(
     @field:NotBlank(message = "Name is required")
@@ -33,10 +32,6 @@ data class AuthorResponse(
     val name: String,
     @JsonFormat(pattern = "yyyy-MM-dd")
     val birthDate: LocalDate,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    val createdAt: LocalDateTime,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    val updatedAt: LocalDateTime,
 )
 
 data class AuthorSummaryResponse(

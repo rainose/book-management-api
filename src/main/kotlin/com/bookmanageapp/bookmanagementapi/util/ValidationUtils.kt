@@ -66,4 +66,22 @@ object ValidationUtils {
             throw ValidationException("$entityName ID must be positive")
         }
     }
+
+    fun validateCurrencyCode(currencyCode: String) {
+        if (currencyCode.isBlank()) {
+            throw ValidationException("Currency code cannot be blank")
+        }
+        if (currencyCode.length != 3) {
+            throw ValidationException("Currency code must be exactly 3 characters")
+        }
+        if (!currencyCode.all { it.isUpperCase() && it.isLetter() }) {
+            throw ValidationException("Currency code must contain only uppercase letters")
+        }
+    }
+
+    fun validateLockNo(lockNo: Int) {
+        if (lockNo <= 0) {
+            throw ValidationException("Lock number must be positive")
+        }
+    }
 }
