@@ -1,4 +1,4 @@
-package com.bookmanageapp.book_management_api
+package com.bookmanageapp.bookmanagementapi
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class BookManagementApiApplication
 
 fun main(args: Array<String>) {
-	runApplication<BookManagementApiApplication>(*args)
+    runApplication<BookManagementApiApplication>(*args)
 }

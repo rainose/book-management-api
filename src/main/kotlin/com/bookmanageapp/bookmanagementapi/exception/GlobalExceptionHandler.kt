@@ -1,0 +1,165 @@
+package com.bookmanageapp.bookmanagementapi.exception
+
+import com.bookmanageapp.bookmanagementapi.dto.ErrorResponse
+import com.bookmanageapp.bookmanagementapi.dto.FieldError
+import com.bookmanageapp.bookmanagementapi.dto.ValidationErrorResponse
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.ControllerAdvice
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.context.request.WebRequest
+import java.sql.SQLException
+
+@ControllerAdvice
+class GlobalExceptionHandler {
+    @ExceptionHandler(BookNotFoundException::class)
+    fun handleBookNotFoundException(
+        ex: BookNotFoundException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.NOT_FOUND.value(),
+                error = "Not Found",
+                message = ex.message ?: "Book not found",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
+    }
+
+    @ExceptionHandler(AuthorNotFoundException::class)
+    fun handleAuthorNotFoundException(
+        ex: AuthorNotFoundException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.NOT_FOUND.value(),
+                error = "Not Found",
+                message = ex.message ?: "Author not found",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
+    }
+
+    @ExceptionHandler(AuthorsNotFoundException::class)
+    fun handleAuthorsNotFoundException(
+        ex: AuthorsNotFoundException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.NOT_FOUND.value(),
+                error = "Not Found",
+                message = ex.message ?: "Authors not found",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
+    }
+
+    @ExceptionHandler(InvalidPublicationStatusTransitionException::class)
+    fun handleInvalidPublicationStatusTransitionException(
+        ex: InvalidPublicationStatusTransitionException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "Bad Request",
+                message = ex.message ?: "Invalid publication status transition",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+
+    @ExceptionHandler(ValidationException::class)
+    fun handleValidationException(
+        ex: ValidationException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "Validation Error",
+                message = ex.message ?: "Validation failed",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleMethodArgumentNotValidException(
+        ex: MethodArgumentNotValidException,
+        request: WebRequest,
+    ): ResponseEntity<ValidationErrorResponse> {
+        val fieldErrors =
+            ex.bindingResult.fieldErrors.map { fieldError ->
+                FieldError(
+                    field = fieldError.field,
+                    rejectedValue = fieldError.rejectedValue,
+                    message = fieldError.defaultMessage ?: "Invalid value",
+                )
+            }
+
+        val errorResponse =
+            ValidationErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "Validation Failed",
+                message = "Request validation failed",
+                path = getPath(request),
+                validationErrors = fieldErrors,
+            )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+
+    @ExceptionHandler(DatabaseException::class)
+    fun handleDatabaseException(
+        ex: DatabaseException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                error = "Database Error",
+                message = ex.message ?: "Database operation failed",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
+    }
+
+    @ExceptionHandler(SQLException::class)
+    fun handleSQLException(
+        ex: SQLException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                error = "Database Error",
+                message = "Database operation failed",
+                path = getPath(request),
+                details = listOf("SQL State: ${ex.sqlState}", "Error Code: ${ex.errorCode}"),
+            )
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleGenericException(
+        ex: Exception,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                error = "Internal Server Error",
+                message = "An unexpected error occurred",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
+    }
+
+    private fun getPath(request: WebRequest): String {
+        return request.getDescription(false).removePrefix("uri=")
+    }
+}
