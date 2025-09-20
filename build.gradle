@@ -1,0 +1,167 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.flywaydb:flyway-database-postgresql:11.11.2"
+        classpath "org.postgresql:postgresql:42.7.4"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
+    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.jooq.jooq-codegen-gradle' version '3.19.8'
+    id 'org.flywaydb.flyway' version '11.11.2'
+}
+
+group = 'com.bookmanageapp'
+version = '0.0.1-SNAPSHOT'
+description = '書籍管理システムのバックエンドAPI'
+
+// データベース接続情報をgradle.propertiesと環境変数から読み込む
+ext {
+    dbHost = System.getenv('DB_HOST') ?: project.findProperty('dbHost') ?: 'localhost'
+    dbPort = System.getenv('DB_PORT') ?: project.findProperty('dbPort') ?: '5432'
+    dbName = System.getenv('DB_NAME') ?: project.findProperty('dbName') ?: 'bookmanageapp'
+    dbUser = System.getenv('DB_USER') ?: project.findProperty('dbUser') ?: 'bookmanage_dev'
+    dbPassword = System.getenv('DB_PASSWORD') ?: project.findProperty('dbPassword') ?: 'secret'
+    dbUrl = "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot Core
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    
+    // Database
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.jooq:jooq-postgres-extensions:3.19.8'
+    implementation 'org.postgresql:postgresql'
+    
+    // Kotlin
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    
+    // Development
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+    testImplementation 'io.mockk:mockk:1.13.12'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // jOOQ コード生成用の依存関係
+    jooqCodegen 'org.postgresql:postgresql'
+    jooqCodegen 'org.jooq:jooq-codegen:3.19.8'
+    jooqCodegen 'org.jooq:jooq-meta-extensions:3.19.8'
+    jooqCodegen 'org.jooq:jooq-postgres-extensions:3.19.8'
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll '-Xjsr305=strict'
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+flyway {
+    url = dbUrl
+    user = dbUser
+    password = dbPassword
+    locations = ["classpath:db/migration"]
+}
+
+
+jooq {
+    version = '3.19.8'
+
+    configuration {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = dbUrl
+            user = dbUser
+            password = dbPassword
+        }
+        generator {
+            name = 'org.jooq.codegen.KotlinGenerator'
+
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'public'
+
+                // PostgreSQL固有の設定
+                excludes = 'flyway_schema_history'
+                includes = '.*'
+
+                // PostgreSQL拡張機能を有効にする
+                properties {
+                    property {
+                        key = 'usePostgresExtensions'
+                        value = 'true'
+                    }
+                }
+            }
+
+            generate {
+                pojos = true
+                pojosAsKotlinDataClasses = true
+                springAnnotations = true
+                javaTimeTypes = true
+                deprecated = false
+                instanceFields = true
+                generatedAnnotation = true
+
+                // Kotlinに最適化された設定
+                kotlinNotNullPojoAttributes = true
+                kotlinNotNullRecordAttributes = true
+                kotlinDefaultedNullablePojoAttributes = true
+                kotlinDefaultedNullableRecordAttributes = true
+            }
+
+            target {
+                packageName = 'com.bookmanageapp.jooq'
+                directory = 'src/main/generated'
+                clean = true
+            }
+        }
+    }
+}
+
+// コード生成タスクの依存関係を設定（タスクが存在する場合のみ）
+tasks.withType(org.jooq.codegen.gradle.CodegenTask).configureEach {
+    dependsOn 'flywayMigrate'
+    
+    // 入力として使用するファイルを指定
+    inputs.files(fileTree('src/main/resources/db/migration'))
+    
+    // 出力ディレクトリを指定
+    outputs.dir('src/main/generated')
+}
+
+// コンパイル前にJOOQコード生成を実行
+tasks.named('compileKotlin') {
+    mustRunAfter tasks.withType(org.jooq.codegen.gradle.CodegenTask)
+}
+
+sourceSets.main.java.srcDirs += 'src/main/generated'
