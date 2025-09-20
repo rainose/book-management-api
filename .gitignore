@@ -1,0 +1,121 @@
+### IDE ###
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# STS
+.apt_generated
+.springBeans
+.sts4-cache
+
+
+### Build & Gradle ###
+.gradle
+build/
+bin/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+
+### Kotlin ###
+.kotlin
+
+
+### Runtime & Logs ###
+pids/
+*.pid
+*.seed
+*.pid.lock
+hs_err_pid*
+*.log
+logs/
+
+
+### OS ###
+# Mac
+.DS_Store
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+
+### Temporary & Package Files ###
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.tgz
+
+
+### Spring Boot & Configuration ###
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Spring Boot specific
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+application-test.properties
+application-test.yml
+application-prod.properties
+application-prod.yml
+*.original
+
+# Flyway
+flyway.conf
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+
+### Testing ###
+# TestContainers
+.testcontainers/
+
+
+### Generated Code ###
+# jOOQ generated files
+src/main/generated/
+
+
+### Miscellaneous ###
+HELP.md
+.dockerignore
