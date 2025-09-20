@@ -1,7 +1,6 @@
 package com.bookmanageapp.bookmanagementapi.dto
 
 import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
-import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
