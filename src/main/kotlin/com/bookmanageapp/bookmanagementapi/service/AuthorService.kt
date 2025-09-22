@@ -22,7 +22,7 @@ class AuthorService(
                 birthDate = request.birthDate,
             )
 
-        return authorRepository.create(author)
+        return authorRepository.create(author) ?: 1L
     }
 
     @Transactional(readOnly = true)

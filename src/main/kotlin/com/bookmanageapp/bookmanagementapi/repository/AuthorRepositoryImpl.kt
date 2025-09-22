@@ -49,7 +49,7 @@ class AuthorRepositoryImpl(
             }
     }
 
-    override fun create(author: Author): Long {
+    override fun create(author: Author): Long? {
         val now = LocalDateTime.now()
         return dslContext
             .insertInto(M_AUTHORS)
@@ -63,7 +63,6 @@ class AuthorRepositoryImpl(
             .returningResult(M_AUTHORS.ID)
             .fetchOne()
             ?.value1()
-            ?: throw IllegalStateException("Failed to create author and retrieve ID.")
     }
 
     override fun update(author: Author) {

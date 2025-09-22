@@ -11,7 +11,7 @@ import com.bookmanageapp.bookmanagementapi.util.ValidBirthDate
 @ValidBirthDate
 data class CreateAuthorRequest(
     @field:NotBlank(message = "Name is required")
-    @field:Size(max = 100, message = "Name must not exceed 100 characters")
+    @field:Size(max = 255, message = "Name must not exceed 255 characters")
     val name: String,
     @field:NotNull(message = "Birth date is required")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -22,7 +22,7 @@ data class CreateAuthorRequest(
 
 data class UpdateAuthorRequest(
     @field:NotBlank(message = "Name is required")
-    @field:Size(max = 100, message = "Name must not exceed 100 characters")
+    @field:Size(max = 255, message = "Name must not exceed 255 characters")
     val name: String,
     @field:NotNull(message = "Birth date is required")
     @field:Past(message = "Birth date must be in the past")
