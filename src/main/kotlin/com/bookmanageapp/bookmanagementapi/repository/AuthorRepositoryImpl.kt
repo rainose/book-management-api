@@ -84,7 +84,9 @@ class AuthorRepositoryImpl(
                 .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
                 .set(M_AUTHORS.LOCK_NO, author.lockNo)
                 .set(M_AUTHORS.CREATED_AT, now)
+                .set(M_AUTHORS.CREATED_BY, "api_executer")
                 .set(M_AUTHORS.UPDATED_AT, now)
+                .set(M_AUTHORS.UPDATED_BY, "api_executer")
                 .returning()
                 .fetchOne()
                 ?: throw DatabaseException("Failed to create author - no record returned")
@@ -106,6 +108,7 @@ class AuthorRepositoryImpl(
                 .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
                 .set(M_AUTHORS.LOCK_NO, author.lockNo + 1)
                 .set(M_AUTHORS.UPDATED_AT, now)
+                .set(M_AUTHORS.UPDATED_BY, "api_executer")
                 .where(
                     M_AUTHORS.ID.eq(author.id)
                         .and(M_AUTHORS.LOCK_NO.eq(author.lockNo)),

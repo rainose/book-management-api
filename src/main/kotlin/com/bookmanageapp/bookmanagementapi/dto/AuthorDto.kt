@@ -28,7 +28,7 @@ data class UpdateAuthorRequest(
 )
 
 data class AuthorResponse(
-    val id: Long,
+    val id: Long?,
     val name: String,
     @JsonFormat(pattern = "yyyy-MM-dd")
     val birthDate: LocalDate,

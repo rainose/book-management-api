@@ -19,14 +19,9 @@ class AuthorController(
     @PostMapping
     fun createAuthor(
         @Valid @RequestBody request: CreateAuthorRequest,
-    ): ResponseEntity<AuthorResponse> {
+    ): ResponseEntity<Map<String, Long?>> {
         val author = authorService.createAuthor(request)
-        val response =
-            AuthorResponse(
-                id = author.id!!,
-                name = author.name,
-                birthDate = author.birthDate,
-            )
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(mapOf("id" to author.id))
     }
 }
