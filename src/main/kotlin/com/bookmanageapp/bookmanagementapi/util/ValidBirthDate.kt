@@ -10,5 +10,5 @@ import kotlin.reflect.KClass
 annotation class ValidBirthDate(
     val message: String = "生年月日はクライアントのタイムゾーンにおける今日以前の日付である必要があります",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = []
+    val payload: Array<KClass<out Payload>> = [],
 )
