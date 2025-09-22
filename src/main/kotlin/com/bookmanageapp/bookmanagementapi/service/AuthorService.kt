@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 class AuthorService(
     private val authorRepository: AuthorRepository,
 ) {
-    fun createAuthor(request: CreateAuthorRequest): Author {
+    fun createAuthor(request: CreateAuthorRequest): Long {
         ValidationUtils.validateAuthorName(request.name)
         ValidationUtils.validateBirthDate(request.birthDate)
 
@@ -25,7 +25,7 @@ class AuthorService(
                 birthDate = request.birthDate,
             )
 
-        return authorRepository.save(author)
+        return authorRepository.create(author)
     }
 
     @Transactional(readOnly = true)
