@@ -3,7 +3,9 @@ package com.bookmanageapp.bookmanagementapi.repository
 import com.bookmanageapp.bookmanagementapi.domain.Author
 
 interface AuthorRepository {
-    fun save(author: Author): Author
+    fun create(author: Author): Long
+
+    fun update(author: Author)
 
     fun findById(id: Long): Author?
 
