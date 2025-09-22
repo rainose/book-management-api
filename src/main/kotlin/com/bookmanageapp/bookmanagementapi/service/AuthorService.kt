@@ -5,7 +5,7 @@ import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.exception.AuthorNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
-import com.bookmanageapp.bookmanagementapi.util.ValidationUtils
+
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,9 +15,6 @@ class AuthorService(
     private val authorRepository: AuthorRepository,
 ) {
     fun createAuthor(request: CreateAuthorRequest): Long {
-        ValidationUtils.validateAuthorName(request.name)
-        ValidationUtils.validateBirthDate(request.birthDate)
-
         val author =
             Author(
                 id = null,
