@@ -81,4 +81,19 @@ class AuthorRepositoryImpl(
             )
             .execute()
     }
+
+    override fun findAll(): List<Author> {
+        return dslContext
+            .selectFrom(M_AUTHORS)
+            .orderBy(M_AUTHORS.ID.asc())
+            .fetch()
+            .map { record ->
+                Author(
+                    id = record.id,
+                    name = record.name,
+                    birthDate = record.birthDate,
+                    lockNo = record.lockNo ?: 1,
+                )
+            }
+    }
 }
