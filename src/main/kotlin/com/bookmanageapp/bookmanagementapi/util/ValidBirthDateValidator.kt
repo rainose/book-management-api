@@ -30,15 +30,14 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, CreateAuthor
         val clientLocalDate = LocalDate.now(clientTimeZoneId)
 
         // birthDate <= clientLocalDate
-        val isValid = !birthDate.isAfter(clientLocalDate)
-
-        if (!isValid) {
+        if (birthDate.isAfter(clientLocalDate)) {
             context?.disableDefaultConstraintViolation()
             context?.buildConstraintViolationWithTemplate(context?.defaultConstraintMessageTemplate ?: "生年月日はクライアントのタイムゾーンにおける今日以前の日付である必要があります")
                 ?.addPropertyNode("birthDate")
                 ?.addConstraintViolation()
+            return false
         }
 
-        return isValid
+        return true
     }
 }
