@@ -1,6 +1,5 @@
 package com.bookmanageapp.bookmanagementapi.controller
 
-import com.bookmanageapp.bookmanagementapi.dto.AuthorResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.service.AuthorService
 import jakarta.validation.Valid

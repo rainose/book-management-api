@@ -1,12 +1,12 @@
 package com.bookmanageapp.bookmanagementapi.dto
 
+import com.bookmanageapp.bookmanagementapi.util.ValidBirthDate
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Past
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
-import com.bookmanageapp.bookmanagementapi.util.ValidBirthDate
 
 @ValidBirthDate
 data class CreateAuthorRequest(
@@ -17,7 +17,7 @@ data class CreateAuthorRequest(
     @JsonFormat(pattern = "yyyy-MM-dd")
     val birthDate: LocalDate,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
-    val clientTimeZone: String
+    val clientTimeZone: String,
 )
 
 data class UpdateAuthorRequest(

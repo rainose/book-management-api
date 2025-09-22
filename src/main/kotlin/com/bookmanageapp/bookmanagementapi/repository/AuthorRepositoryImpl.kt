@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 class AuthorRepositoryImpl(
     private val dslContext: DSLContext,
 ) : AuthorRepository {
-
     override fun findById(id: Long): Author? {
         return dslContext
             .selectFrom(M_AUTHORS)
@@ -27,11 +26,13 @@ class AuthorRepositoryImpl(
     }
 
     override fun existsById(id: Long): Boolean {
-        return (dslContext
-            .selectCount()
-            .from(M_AUTHORS)
-            .where(M_AUTHORS.ID.eq(id))
-            .fetchOne(0, Int::class.java) ?: 0) > 0
+        return (
+            dslContext
+                .selectCount()
+                .from(M_AUTHORS)
+                .where(M_AUTHORS.ID.eq(id))
+                .fetchOne(0, Int::class.java) ?: 0
+        ) > 0
     }
 
     override fun findByIds(ids: List<Long>): List<Author> {
