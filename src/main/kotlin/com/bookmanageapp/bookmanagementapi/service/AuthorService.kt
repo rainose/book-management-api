@@ -49,4 +49,9 @@ class AuthorService(
             throw AuthorsNotFoundException(missingIds)
         }
     }
+
+    @Transactional(readOnly = true)
+    fun getAllAuthors(): List<Author> {
+        return authorRepository.findAll()
+    }
 }
