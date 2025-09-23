@@ -13,12 +13,12 @@ enum class PublicationStatus(val code: String) {
 
     companion object {
         fun fromString(value: String): PublicationStatus {
-            return values().find { it.name.equals(value, ignoreCase = true) }
+            return entries.find { it.name.equals(value, ignoreCase = true) }
                 ?: throw IllegalArgumentException()
         }
 
         fun fromCode(code: String): PublicationStatus {
-            return values().find { it.code == code }
+            return entries.find { it.code == code }
                 ?: throw IllegalArgumentException()
         }
     }
