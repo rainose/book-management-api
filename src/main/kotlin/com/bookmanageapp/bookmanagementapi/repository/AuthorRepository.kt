@@ -1,9 +1,10 @@
 package com.bookmanageapp.bookmanagementapi.repository
 
 import com.bookmanageapp.bookmanagementapi.domain.Author
+import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 
 interface AuthorRepository {
-    fun create(author: Author): Long?
+    fun create(author: NewAuthor): Long?
 
     fun update(author: Author)
 
@@ -12,4 +13,11 @@ interface AuthorRepository {
     fun existsById(id: Long): Boolean
 
     fun findByIds(ids: List<Long>): List<Author>
+
+    fun findAll(): List<Author>
+
+    fun findAllWithPagination(
+        page: Int,
+        size: Int,
+    ): Pair<List<Author>, Long>
 }
