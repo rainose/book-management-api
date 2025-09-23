@@ -7,7 +7,6 @@ import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
 import com.bookmanageapp.bookmanagementapi.dto.UpdateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.exception.AuthorNotFoundException
-import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import org.springframework.stereotype.Service
@@ -39,19 +38,6 @@ class AuthorService(
     fun validateAuthorExists(id: Long) {
         if (!authorRepository.existsById(id)) {
             throw AuthorNotFoundException(id)
-        }
-    }
-
-    @Transactional(readOnly = true)
-    fun validateAuthorsExist(ids: List<Long>) {
-        if (ids.isEmpty()) return
-
-        val existingAuthors = authorRepository.findByIds(ids)
-        val existingIds = existingAuthors.map { it.id }.toSet()
-        val missingIds = ids.filter { it !in existingIds }
-
-        if (missingIds.isNotEmpty()) {
-            throw AuthorsNotFoundException(missingIds)
         }
     }
 
