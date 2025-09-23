@@ -6,7 +6,7 @@ import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 interface AuthorRepository {
     fun create(author: NewAuthor): Long?
 
-    fun update(author: Author)
+    fun update(author: Author): Int
 
     fun findById(id: Long): Author?
 

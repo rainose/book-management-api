@@ -30,3 +30,7 @@ class DatabaseException(
     message: String,
     cause: Throwable? = null,
 ) : BookManagementException(message, cause)
+
+class OptimisticLockException(
+    message: String = "The resource has been modified by another user. Please refresh and try again.",
+) : BookManagementException(message)
