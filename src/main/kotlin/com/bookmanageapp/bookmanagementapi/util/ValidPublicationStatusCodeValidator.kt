@@ -1,5 +1,6 @@
 package com.bookmanageapp.bookmanagementapi.util
 
+import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 
@@ -13,6 +14,6 @@ class ValidPublicationStatusCodeValidator : ConstraintValidator<ValidPublication
             return true
         }
 
-        return value == "00" || value == "01"
+        return PublicationStatus.entries.any { it.code == value }
     }
 }
