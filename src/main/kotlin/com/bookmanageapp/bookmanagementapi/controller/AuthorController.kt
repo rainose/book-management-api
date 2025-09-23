@@ -41,7 +41,7 @@ class AuthorController(
                 content =
                     pagedAuthors.content.map { author ->
                         AuthorSummaryResponse(
-                            id = author.id!!,
+                            id = author.id,
                             name = author.name,
                             birthDate = author.birthDate,
                         )

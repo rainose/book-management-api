@@ -1,6 +1,7 @@
 package com.bookmanageapp.bookmanagementapi.repository
 
 import com.bookmanageapp.bookmanagementapi.domain.Author
+import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 import com.bookmanageapp.jooq.tables.MAuthors.Companion.M_AUTHORS
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
@@ -17,10 +18,10 @@ class AuthorRepositoryImpl(
             .fetchOne()
             ?.let { record ->
                 Author(
-                    id = record.id,
+                    id = requireNotNull(record.id),
                     name = record.name,
                     birthDate = record.birthDate,
-                    lockNo = record.lockNo ?: 1,
+                    lockNo = requireNotNull(record.lockNo),
                 )
             }
     }
@@ -42,15 +43,15 @@ class AuthorRepositoryImpl(
             .fetch()
             .map { record ->
                 Author(
-                    id = record.id,
+                    id = requireNotNull(record.id),
                     name = record.name,
                     birthDate = record.birthDate,
-                    lockNo = record.lockNo ?: 1,
+                    lockNo = requireNotNull(record.lockNo),
                 )
             }
     }
 
-    override fun create(author: Author): Long? {
+    override fun create(author: NewAuthor): Long? {
         val now = LocalDateTime.now()
         return dslContext
             .insertInto(M_AUTHORS)
@@ -89,10 +90,10 @@ class AuthorRepositoryImpl(
             .fetch()
             .map { record ->
                 Author(
-                    id = record.id,
+                    id = requireNotNull(record.id),
                     name = record.name,
                     birthDate = record.birthDate,
-                    lockNo = record.lockNo ?: 1,
+                    lockNo = requireNotNull(record.lockNo),
                 )
             }
     }
@@ -116,10 +117,10 @@ class AuthorRepositoryImpl(
                 .fetch()
                 .map { record ->
                     Author(
-                        id = record.id,
+                        id = requireNotNull(record.id),
                         name = record.name,
                         birthDate = record.birthDate,
-                        lockNo = record.lockNo ?: 1,
+                        lockNo = requireNotNull(record.lockNo),
                     )
                 }
 

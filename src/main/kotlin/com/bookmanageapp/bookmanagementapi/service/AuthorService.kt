@@ -1,6 +1,7 @@
 package com.bookmanageapp.bookmanagementapi.service
 
 import com.bookmanageapp.bookmanagementapi.domain.Author
+import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
@@ -18,13 +19,12 @@ class AuthorService(
 ) {
     fun createAuthor(request: CreateAuthorRequest): Long {
         val author =
-            Author(
-                id = null,
+            NewAuthor(
                 name = request.name.trim(),
                 birthDate = request.birthDate,
             )
-
-        return authorRepository.create(author) ?: 1L
+        val authorId = authorRepository.create(author)
+        return requireNotNull(authorId)
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +45,7 @@ class AuthorService(
         if (ids.isEmpty()) return
 
         val existingAuthors = authorRepository.findByIds(ids)
-        val existingIds = existingAuthors.mapNotNull { it.id }.toSet()
+        val existingIds = existingAuthors.map { it.id }.toSet()
         val missingIds = ids.filter { it !in existingIds }
 
         if (missingIds.isNotEmpty()) {
