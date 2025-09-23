@@ -4,7 +4,6 @@ import com.bookmanageapp.bookmanagementapi.util.ValidBirthDate
 import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Past
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
 
@@ -20,14 +19,18 @@ data class CreateAuthorRequest(
     val clientTimeZone: String,
 )
 
+@ValidBirthDate
 data class UpdateAuthorRequest(
     @field:NotBlank(message = "Name is required")
     @field:Size(max = 255, message = "Name must not exceed 255 characters")
     val name: String,
     @field:NotNull(message = "Birth date is required")
-    @field:Past(message = "Birth date must be in the past")
     @JsonFormat(pattern = "yyyy-MM-dd")
     val birthDate: LocalDate,
+    @field:NotNull(message = "Lock number is required")
+    val lockNo: Int,
+    @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
+    val clientTimeZone: String,
 )
 
 data class AuthorResponse(

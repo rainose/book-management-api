@@ -5,8 +5,10 @@ import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
+import com.bookmanageapp.bookmanagementapi.dto.UpdateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.exception.AuthorNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
+import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -80,5 +82,26 @@ class AuthorService(
             content = authors,
             pagination = paginationInfo,
         )
+    }
+
+    fun updateAuthor(
+        id: Long,
+        request: UpdateAuthorRequest,
+    ) {
+        authorRepository.findById(id)
+            ?: throw AuthorNotFoundException(id)
+
+        val updatedAuthor =
+            Author(
+                id = id,
+                name = request.name.trim(),
+                birthDate = request.birthDate,
+                lockNo = request.lockNo,
+            )
+
+        val updatedRows = authorRepository.update(updatedAuthor)
+        if (updatedRows == 0) {
+            throw OptimisticLockException()
+        }
     }
 }
