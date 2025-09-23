@@ -8,7 +8,6 @@ import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
 import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.BookNotFoundException
-import com.bookmanageapp.bookmanagementapi.exception.ValidationException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
 import org.springframework.stereotype.Service
@@ -20,14 +19,8 @@ import kotlin.math.ceil
 class BookService(
     private val bookRepository: BookRepository,
     private val authorRepository: AuthorRepository,
-    private val authorService: AuthorService,
 ) {
     fun createBook(request: CreateBookRequest): Long {
-        // 事前の件数チェック
-        if (request.authorIds.isEmpty()) {
-            throw ValidationException("著者を1人以上選択してください")
-        }
-
         // 著者の存在確認
         if (!isAuthorsExist(request.authorIds)) {
             throw AuthorsNotFoundException(request.authorIds)
