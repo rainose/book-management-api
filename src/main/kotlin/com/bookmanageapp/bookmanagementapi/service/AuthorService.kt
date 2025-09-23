@@ -88,8 +88,9 @@ class AuthorService(
         id: Long,
         request: UpdateAuthorRequest,
     ) {
-        authorRepository.findById(id)
-            ?: throw AuthorNotFoundException(id)
+        if (!authorRepository.existsById(id)) {
+            throw AuthorNotFoundException(id)
+        }
 
         val updatedAuthor =
             Author(
