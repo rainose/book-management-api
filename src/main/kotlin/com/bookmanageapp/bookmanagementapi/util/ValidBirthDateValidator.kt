@@ -1,15 +1,15 @@
 package com.bookmanageapp.bookmanagementapi.util
 
-import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
+import com.bookmanageapp.bookmanagementapi.dto.BirthDateAware
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.ZoneId
 
-class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, CreateAuthorRequest> {
+class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAware> {
     override fun isValid(
-        request: CreateAuthorRequest?,
+        request: BirthDateAware?,
         context: ConstraintValidatorContext?,
     ): Boolean {
         if (request == null || request.clientTimeZone.isBlank()) {

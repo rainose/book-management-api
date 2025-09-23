@@ -67,9 +67,9 @@ class AuthorRepositoryImpl(
             ?.value1()
     }
 
-    override fun update(author: Author) {
+    override fun update(author: Author): Int {
         val now = LocalDateTime.now()
-        dslContext
+        return dslContext
             .update(M_AUTHORS)
             .set(M_AUTHORS.NAME, author.name)
             .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
