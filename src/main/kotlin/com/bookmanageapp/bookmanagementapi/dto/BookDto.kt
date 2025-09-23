@@ -1,6 +1,7 @@
 package com.bookmanageapp.bookmanagementapi.dto
 
 import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
+import com.bookmanageapp.bookmanagementapi.util.ValidPublicationStatusCode
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
@@ -21,8 +22,9 @@ data class CreateBookRequest(
     @field:NotBlank(message = "Currency code is required")
     @field:Size(min = 3, max = 3, message = "Currency code must be 3 characters")
     val currencyCode: String,
-    @field:NotNull(message = "Publication status is required")
-    val publicationStatus: PublicationStatus,
+    @field:NotBlank(message = "Publication status is required")
+    @field:ValidPublicationStatusCode
+    val publicationStatus: String,
     @field:NotEmpty(message = "Author IDs are required")
     @field:Size(min = 1, message = "Book must have at least one author")
     val authorIds: List<
