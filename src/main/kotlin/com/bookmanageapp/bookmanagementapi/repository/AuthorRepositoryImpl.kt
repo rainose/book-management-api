@@ -1,6 +1,7 @@
 package com.bookmanageapp.bookmanagementapi.repository
 
 import com.bookmanageapp.bookmanagementapi.domain.Author
+import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 import com.bookmanageapp.jooq.tables.MAuthors.Companion.M_AUTHORS
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
@@ -17,10 +18,10 @@ class AuthorRepositoryImpl(
             .fetchOne()
             ?.let { record ->
                 Author(
-                    id = record.id,
+                    id = requireNotNull(record.id),
                     name = record.name,
                     birthDate = record.birthDate,
-                    lockNo = record.lockNo ?: 1,
+                    lockNo = requireNotNull(record.lockNo),
                 )
             }
     }
@@ -42,15 +43,15 @@ class AuthorRepositoryImpl(
             .fetch()
             .map { record ->
                 Author(
-                    id = record.id,
+                    id = requireNotNull(record.id),
                     name = record.name,
                     birthDate = record.birthDate,
-                    lockNo = record.lockNo ?: 1,
+                    lockNo = requireNotNull(record.lockNo),
                 )
             }
     }
 
-    override fun create(author: Author): Long? {
+    override fun create(author: NewAuthor): Long? {
         val now = LocalDateTime.now()
         return dslContext
             .insertInto(M_AUTHORS)
@@ -80,5 +81,49 @@ class AuthorRepositoryImpl(
                     .and(M_AUTHORS.LOCK_NO.eq(author.lockNo)),
             )
             .execute()
+    }
+
+    override fun findAll(): List<Author> {
+        return dslContext
+            .selectFrom(M_AUTHORS)
+            .orderBy(M_AUTHORS.ID.asc())
+            .fetch()
+            .map { record ->
+                Author(
+                    id = requireNotNull(record.id),
+                    name = record.name,
+                    birthDate = record.birthDate,
+                    lockNo = requireNotNull(record.lockNo),
+                )
+            }
+    }
+
+    override fun findAllWithPagination(
+        page: Int,
+        size: Int,
+    ): Pair<List<Author>, Long> {
+        val totalCount =
+            dslContext
+                .selectCount()
+                .from(M_AUTHORS)
+                .fetchOne(0, Long::class.java) ?: 0L
+
+        val authors =
+            dslContext
+                .selectFrom(M_AUTHORS)
+                .orderBy(M_AUTHORS.ID.asc())
+                .limit(size)
+                .offset((page - 1) * size)
+                .fetch()
+                .map { record ->
+                    Author(
+                        id = requireNotNull(record.id),
+                        name = record.name,
+                        birthDate = record.birthDate,
+                        lockNo = requireNotNull(record.lockNo),
+                    )
+                }
+
+        return Pair(authors, totalCount)
     }
 }
