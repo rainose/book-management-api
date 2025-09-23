@@ -14,10 +14,10 @@ data class CreateAuthorRequest(
     val name: String,
     @field:NotNull(message = "Birth date is required")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    val birthDate: LocalDate,
+    override val birthDate: LocalDate,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
-    val clientTimeZone: String,
-)
+    override val clientTimeZone: String,
+) : BirthDateAware
 
 @ValidBirthDate
 data class UpdateAuthorRequest(
@@ -26,12 +26,12 @@ data class UpdateAuthorRequest(
     val name: String,
     @field:NotNull(message = "Birth date is required")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    val birthDate: LocalDate,
+    override val birthDate: LocalDate,
     @field:NotNull(message = "Lock number is required")
     val lockNo: Int,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
-    val clientTimeZone: String,
-)
+    override val clientTimeZone: String,
+) : BirthDateAware
 
 data class AuthorResponse(
     val id: Long?,
