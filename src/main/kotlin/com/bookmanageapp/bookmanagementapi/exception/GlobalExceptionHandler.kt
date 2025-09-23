@@ -113,6 +113,21 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
+    @ExceptionHandler(OptimisticLockException::class)
+    fun handleOptimisticLockException(
+        ex: OptimisticLockException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.CONFLICT.value(),
+                error = "Conflict",
+                message = ex.message ?: "The resource has been modified by another user",
+                path = getPath(request),
+            )
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse)
+    }
+
     @ExceptionHandler(DatabaseException::class)
     fun handleDatabaseException(
         ex: DatabaseException,
