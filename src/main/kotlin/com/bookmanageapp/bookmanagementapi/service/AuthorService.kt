@@ -2,11 +2,14 @@ package com.bookmanageapp.bookmanagementapi.service
 
 import com.bookmanageapp.bookmanagementapi.domain.Author
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
+import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
+import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
 import com.bookmanageapp.bookmanagementapi.exception.AuthorNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.math.ceil
 
 @Service
 @Transactional
@@ -53,5 +56,29 @@ class AuthorService(
     @Transactional(readOnly = true)
     fun getAllAuthors(): List<Author> {
         return authorRepository.findAll()
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllAuthorsWithPagination(
+        page: Int,
+        size: Int,
+    ): PagedResponse<Author> {
+        val (authors, totalCount) = authorRepository.findAllWithPagination(page, size)
+        val totalPages = if (totalCount > 0) ceil(totalCount.toDouble() / size).toInt() else 0
+
+        val paginationInfo =
+            PaginationInfo(
+                currentPage = page,
+                pageSize = size,
+                totalElements = totalCount,
+                totalPages = totalPages,
+                hasNext = page < totalPages,
+                hasPrevious = page > 1,
+            )
+
+        return PagedResponse(
+            content = authors,
+            pagination = paginationInfo,
+        )
     }
 }
