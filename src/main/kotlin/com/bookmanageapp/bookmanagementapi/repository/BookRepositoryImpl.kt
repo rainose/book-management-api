@@ -26,7 +26,7 @@ class BookRepositoryImpl(
                     .set(M_BOOKS.TITLE, book.title)
                     .set(M_BOOKS.PRICE, book.price)
                     .set(M_BOOKS.CURRENCY_CODE, book.currencyCode)
-                    .set(M_BOOKS.PUBLICATION_STATUS, book.publicationStatus.name)
+                    .set(M_BOOKS.PUBLICATION_STATUS, book.publicationStatus.code)
                     .set(M_BOOKS.LOCK_NO, book.lockNo)
                     .set(M_BOOKS.CREATED_AT, now)
                     .set(M_BOOKS.CREATED_BY, "api_executer")
@@ -36,15 +36,15 @@ class BookRepositoryImpl(
                     .fetchOne()
                     ?.value1()
 
-            if (bookId != null) {
-                // 書籍と著者の関連をt_book_authorsテーブルに挿入
-                book.authorIds.forEach { authorId ->
-                    transactionDsl
-                        .insertInto(T_BOOK_AUTHORS)
-                        .set(T_BOOK_AUTHORS.BOOK_ID, bookId)
-                        .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
-                        .execute()
-                }
+            if (bookId != null && book.authorIds.isNotEmpty()) {
+                // 書籍と著者の関連をt_book_authorsテーブルに一括挿入
+                val insertQueries =
+                    book.authorIds.map { authorId ->
+                        transactionDsl.insertInto(T_BOOK_AUTHORS)
+                            .set(T_BOOK_AUTHORS.BOOK_ID, bookId)
+                            .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
+                    }
+                transactionDsl.batch(insertQueries).execute()
             }
 
             bookId
@@ -72,7 +72,7 @@ class BookRepositoryImpl(
             title = bookRecord.title,
             price = bookRecord.price,
             currencyCode = bookRecord.currencyCode,
-            publicationStatus = PublicationStatus.valueOf(bookRecord.publicationStatus),
+            publicationStatus = PublicationStatus.fromCode(bookRecord.publicationStatus),
             authorIds = authorIds,
             lockNo = requireNotNull(bookRecord.lockNo),
         )
@@ -101,7 +101,7 @@ class BookRepositoryImpl(
                     .set(M_BOOKS.TITLE, book.title)
                     .set(M_BOOKS.PRICE, book.price)
                     .set(M_BOOKS.CURRENCY_CODE, book.currencyCode)
-                    .set(M_BOOKS.PUBLICATION_STATUS, book.publicationStatus.name)
+                    .set(M_BOOKS.PUBLICATION_STATUS, book.publicationStatus.code)
                     .set(M_BOOKS.LOCK_NO, book.lockNo + 1)
                     .set(M_BOOKS.UPDATED_AT, now)
                     .set(M_BOOKS.UPDATED_BY, "api_executer")
@@ -118,13 +118,15 @@ class BookRepositoryImpl(
                     .where(T_BOOK_AUTHORS.BOOK_ID.eq(book.id))
                     .execute()
 
-                // 新しい著者関連を挿入
-                book.authorIds.forEach { authorId ->
-                    transactionDsl
-                        .insertInto(T_BOOK_AUTHORS)
-                        .set(T_BOOK_AUTHORS.BOOK_ID, book.id)
-                        .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
-                        .execute()
+                // 新しい著者関連を一括挿入
+                if (book.authorIds.isNotEmpty()) {
+                    val insertQueries =
+                        book.authorIds.map { authorId ->
+                            transactionDsl.insertInto(T_BOOK_AUTHORS)
+                                .set(T_BOOK_AUTHORS.BOOK_ID, book.id)
+                                .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
+                        }
+                    transactionDsl.batch(insertQueries).execute()
                 }
             }
 
@@ -133,70 +135,100 @@ class BookRepositoryImpl(
     }
 
     override fun findAll(): List<Book> {
-        val books =
+        // 1. 全書籍を取得
+        val bookRecords =
             dslContext
                 .selectFrom(M_BOOKS)
                 .orderBy(M_BOOKS.ID.asc())
                 .fetch()
-                .map { record ->
-                    val authorIds =
-                        dslContext
-                            .select(T_BOOK_AUTHORS.AUTHOR_ID)
-                            .from(T_BOOK_AUTHORS)
-                            .where(T_BOOK_AUTHORS.BOOK_ID.eq(record.id))
-                            .fetch()
-                            .mapNotNull { it.value1() }
 
-                    Book(
-                        id = requireNotNull(record.id),
-                        title = record.title,
-                        price = record.price,
-                        currencyCode = record.currencyCode,
-                        publicationStatus = PublicationStatus.valueOf(record.publicationStatus),
-                        authorIds = authorIds,
-                        lockNo = requireNotNull(record.lockNo),
-                    )
-                }
+        if (bookRecords.isEmpty()) {
+            return emptyList()
+        }
 
-        return books
+        // 2. 書籍IDリストを抽出
+        val bookIds = bookRecords.mapNotNull { it.id }
+
+        // 3. 一度のクエリで全著者情報を取得
+        val bookAuthorMap =
+            dslContext
+                .select(T_BOOK_AUTHORS.BOOK_ID, T_BOOK_AUTHORS.AUTHOR_ID)
+                .from(T_BOOK_AUTHORS)
+                .where(T_BOOK_AUTHORS.BOOK_ID.`in`(bookIds))
+                .fetch()
+                .groupBy { it.value1() }
+                .mapValues { entry -> entry.value.mapNotNull { it.value2() } }
+
+        // 4. 書籍オブジェクトを構築
+        return bookRecords.map { record ->
+            val bookId = requireNotNull(record.id)
+            val authorIds = bookAuthorMap[bookId] ?: emptyList()
+
+            Book(
+                id = bookId,
+                title = record.title,
+                price = record.price,
+                currencyCode = record.currencyCode,
+                publicationStatus = PublicationStatus.fromCode(record.publicationStatus),
+                authorIds = authorIds,
+                lockNo = requireNotNull(record.lockNo),
+            )
+        }
     }
 
     override fun findAllWithPagination(
         page: Int,
         size: Int,
     ): Pair<List<Book>, Long> {
+        // 1. 書籍総数を取得
         val totalCount =
             dslContext
                 .selectCount()
                 .from(M_BOOKS)
                 .fetchOne(0, Long::class.java) ?: 0L
 
-        val books =
+        // 2. ページング対象の書籍を取得
+        val bookRecords =
             dslContext
                 .selectFrom(M_BOOKS)
                 .orderBy(M_BOOKS.ID.asc())
                 .limit(size)
                 .offset((page - 1) * size)
                 .fetch()
-                .map { record ->
-                    val authorIds =
-                        dslContext
-                            .select(T_BOOK_AUTHORS.AUTHOR_ID)
-                            .from(T_BOOK_AUTHORS)
-                            .where(T_BOOK_AUTHORS.BOOK_ID.eq(record.id))
-                            .fetch()
-                            .mapNotNull { it.value1() }
 
-                    Book(
-                        id = requireNotNull(record.id),
-                        title = record.title,
-                        price = record.price,
-                        currencyCode = record.currencyCode,
-                        publicationStatus = PublicationStatus.valueOf(record.publicationStatus),
-                        authorIds = authorIds,
-                        lockNo = requireNotNull(record.lockNo),
-                    )
-                }
+        if (bookRecords.isEmpty()) {
+            return Pair(emptyList(), totalCount)
+        }
+
+        // 3. 書籍IDリストを抽出
+        val bookIds = bookRecords.mapNotNull { it.id }
+
+        // 4. 一度のクエリで対象書籍の著者情報を取得
+        val bookAuthorMap =
+            dslContext
+                .select(T_BOOK_AUTHORS.BOOK_ID, T_BOOK_AUTHORS.AUTHOR_ID)
+                .from(T_BOOK_AUTHORS)
+                .where(T_BOOK_AUTHORS.BOOK_ID.`in`(bookIds))
+                .fetch()
+                .groupBy { it.value1() }
+                .mapValues { entry -> entry.value.mapNotNull { it.value2() } }
+
+        // 5. 書籍オブジェクトを構築
+        val books =
+            bookRecords.map { record ->
+                val bookId = requireNotNull(record.id)
+                val authorIds = bookAuthorMap[bookId] ?: emptyList()
+
+                Book(
+                    id = bookId,
+                    title = record.title,
+                    price = record.price,
+                    currencyCode = record.currencyCode,
+                    publicationStatus = PublicationStatus.fromCode(record.publicationStatus),
+                    authorIds = authorIds,
+                    lockNo = requireNotNull(record.lockNo),
+                )
+            }
 
         return Pair(books, totalCount)
     }
