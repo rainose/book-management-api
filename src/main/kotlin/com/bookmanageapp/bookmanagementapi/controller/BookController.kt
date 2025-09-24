@@ -34,15 +34,15 @@ class BookController(
 
     @GetMapping
     fun getBooks(
+        @RequestParam(defaultValue = "1")
+        @Min(value = 1, message = "Page must be at least 1")
+        page: Int,
         @RequestParam(defaultValue = "20")
-        @Min(value = 1, message = "Limit must be at least 1")
-        @Max(value = 100, message = "Limit must not exceed 100")
-        limit: Int,
-        @RequestParam(defaultValue = "0")
-        @Min(value = 0, message = "Offset must not be negative")
-        offset: Int,
+        @Min(value = 1, message = "Size must be at least 1")
+        @Max(value = 100, message = "Size must not exceed 100")
+        size: Int,
     ): ResponseEntity<PagedResponse<BookResponse>> {
-        val pagedResponse = bookService.getAllBooksWithOffsetPagination(limit, offset)
+        val pagedResponse = bookService.getAllBooksWithAuthors(page, size)
         return ResponseEntity.ok(pagedResponse)
     }
 }

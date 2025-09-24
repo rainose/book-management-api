@@ -246,10 +246,4 @@ class BookRepositoryImpl(
         return findBooksWithPagination(size, offset)
     }
 
-    override fun findAllWithOffsetPagination(
-        limit: Int,
-        offset: Int,
-    ): Pair<List<Book>, Long> {
-        return findBooksWithPagination(limit, offset)
-    }
 }

@@ -61,17 +61,7 @@ class BookService(
         size: Int,
     ): PagedResponse<Book> {
         val (books, totalCount) = bookRepository.findAllWithPagination(page, size)
-        val totalPages = if (totalCount > 0) ceil(totalCount.toDouble() / size).toInt() else 0
-
-        val paginationInfo =
-            PaginationInfo(
-                currentPage = page,
-                pageSize = size,
-                totalElements = totalCount,
-                totalPages = totalPages,
-                hasNext = page < totalPages,
-                hasPrevious = page > 1,
-            )
+        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
 
         return PagedResponse(
             content = books,
@@ -80,11 +70,11 @@ class BookService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllBooksWithOffsetPagination(
-        limit: Int,
-        offset: Int,
+    fun getAllBooksWithAuthors(
+        page: Int,
+        size: Int,
     ): PagedResponse<BookResponse> {
-        val (books, totalCount) = bookRepository.findAllWithOffsetPagination(limit, offset)
+        val (books, totalCount) = bookRepository.findAllWithPagination(page, size)
 
         // 全ての著者IDを収集
         val allAuthorIds = books.flatMap { it.authorIds }.distinct()
@@ -117,15 +107,7 @@ class BookService(
                 )
             }
 
-        val paginationInfo =
-            PaginationInfo(
-                currentPage = (offset / limit) + 1,
-                pageSize = limit,
-                totalElements = totalCount,
-                totalPages = if (totalCount > 0) ceil(totalCount.toDouble() / limit).toInt() else 0,
-                hasNext = offset + limit < totalCount,
-                hasPrevious = offset > 0,
-            )
+        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
 
         return PagedResponse(
             content = bookResponses,
