@@ -7,7 +7,21 @@ import java.time.DateTimeException
 import java.time.LocalDate
 import java.time.ZoneId
 
+/**
+ * [ValidBirthDate]アノテーションに対応するバリデーションロジックを実装したクラス。
+ *
+ * @author nose yudai
+ */
 class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAware> {
+    /**
+     * 指定されたリクエストオブジェクトの生年月日が有効かどうかを検証します。
+     *
+     * 生年月日は、リクエストで指定されたクライアントのタイムゾーンにおける現在の日付以前である必要があります。
+     *
+     * @param request 検証対象の[BirthDateAware]オブジェクト
+     * @param context バリデーションコンテキスト
+     * @return 生年月日が有効な場合はtrue、そうでない場合はfalse
+     */
     override fun isValid(
         request: BirthDateAware?,
         context: ConstraintValidatorContext?,

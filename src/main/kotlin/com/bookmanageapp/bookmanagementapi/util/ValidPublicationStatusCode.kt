@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [ValidPublicationStatusCodeValidator::class])
 annotation class ValidPublicationStatusCode(
-    val message: String = "出版ステータスコードは '00' または '01' である必要があります",
+    val message: String = "出版状況の値が不正です",
     val groups: Array<KClass<*>> = [],
     val payload: Array<KClass<out Payload>> = [],
 )

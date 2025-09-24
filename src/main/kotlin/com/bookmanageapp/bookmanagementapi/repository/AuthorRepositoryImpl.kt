@@ -7,10 +7,19 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
+/**
+ * [AuthorRepository] のjOOQを使用した実装クラス。
+ *
+ * @property dslContext jOOQのDSLコンテキスト
+ * @author nose yudai
+ */
 @Repository
 class AuthorRepositoryImpl(
     private val dslContext: DSLContext,
 ) : AuthorRepository {
+    /**
+     * {@inheritDoc}
+     */
     override fun findById(id: Long): Author? {
         return dslContext
             .selectFrom(M_AUTHORS)
@@ -26,6 +35,9 @@ class AuthorRepositoryImpl(
             }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     override fun existsById(id: Long): Boolean {
         return (
             dslContext
@@ -36,8 +48,9 @@ class AuthorRepositoryImpl(
         ) > 0
     }
 
-    
-
+    /**
+     * {@inheritDoc}
+     */
     override fun countByIds(ids: List<Long>): Int {
         return dslContext
             .selectCount()
@@ -46,6 +59,9 @@ class AuthorRepositoryImpl(
             .fetchOne(0, Int::class.java) ?: 0
     }
 
+    /**
+     * {@inheritDoc}
+     */
     override fun create(author: NewAuthor): Long? {
         val now = LocalDateTime.now()
         return dslContext
@@ -62,6 +78,9 @@ class AuthorRepositoryImpl(
             ?.value1()
     }
 
+    /**
+     * {@inheritDoc}
+     */
     override fun update(author: Author): Int {
         val now = LocalDateTime.now()
         return dslContext

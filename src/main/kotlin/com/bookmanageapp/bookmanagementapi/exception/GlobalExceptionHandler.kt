@@ -11,8 +11,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import java.sql.SQLException
 
+/**
+ * アプリケーション全体で発生する例外をハンドリングするクラス。
+ *
+ * @author nose yudai
+ */
 @ControllerAdvice
 class GlobalExceptionHandler {
+    /**
+     * [NotFoundException]をハンドリングし、404 Not Foundレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFoundException(
         ex: NotFoundException,
@@ -28,6 +40,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
+    /**
+     * [InvalidRequestException]をハンドリングし、400 Bad Requestレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
     @ExceptionHandler(InvalidRequestException::class)
     fun handleInvalidRequestException(
         ex: InvalidRequestException,
@@ -43,6 +62,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
+    /**
+     * [MethodArgumentNotValidException]をハンドリングし、400 Bad Requestレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return バリデーションエラーレスポンス
+     */
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidException(
         ex: MethodArgumentNotValidException,
@@ -68,6 +94,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
+    /**
+     * [OptimisticLockException]をハンドリングし、409 Conflictレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
     @ExceptionHandler(OptimisticLockException::class)
     fun handleOptimisticLockException(
         ex: OptimisticLockException,
@@ -83,6 +116,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse)
     }
 
+    /**
+     * [DatabaseException]をハンドリングし、500 Internal Server Errorレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
     @ExceptionHandler(DatabaseException::class)
     fun handleDatabaseException(
         ex: DatabaseException,
@@ -98,6 +138,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
     }
 
+    /**
+     * [SQLException]をハンドリングし、500 Internal Server Errorレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
     @ExceptionHandler(SQLException::class)
     fun handleSQLException(
         ex: SQLException,
@@ -114,6 +161,13 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
     }
 
+    /**
+     * その他のすべての[Exception]をハンドリングし、500 Internal Server Errorレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
     @ExceptionHandler(Exception::class)
     fun handleGenericException(
         ex: Exception,
