@@ -3,6 +3,7 @@ package com.bookmanageapp.bookmanagementapi.controller
 import com.bookmanageapp.bookmanagementapi.dto.BookResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateBookRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
+import com.bookmanageapp.bookmanagementapi.dto.UpdateBookRequest
 import com.bookmanageapp.bookmanagementapi.service.BookService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -44,5 +47,14 @@ class BookController(
     ): ResponseEntity<PagedResponse<BookResponse>> {
         val pagedResponse = bookService.getAllBooksWithAuthors(page, size)
         return ResponseEntity.ok(pagedResponse)
+    }
+
+    @PutMapping("/{id}")
+    fun updateBook(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateBookRequest,
+    ): ResponseEntity<Void> {
+        bookService.updateBook(id, request)
+        return ResponseEntity.noContent().build()
     }
 }

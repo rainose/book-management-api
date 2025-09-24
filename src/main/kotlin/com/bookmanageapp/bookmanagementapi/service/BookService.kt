@@ -8,8 +8,10 @@ import com.bookmanageapp.bookmanagementapi.dto.BookResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateBookRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
+import com.bookmanageapp.bookmanagementapi.dto.UpdateBookRequest
 import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.BookNotFoundException
+import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
 import org.springframework.stereotype.Service
@@ -119,9 +121,6 @@ class BookService(
         return existingCount == authorIds.size
     }
 
-    // TODO: UpdateBookRequestのpublicationStatus型をStringに修正後に実装
-
-    /*
     fun updateBook(
         id: Long,
         request: UpdateBookRequest,
@@ -131,24 +130,24 @@ class BookService(
         }
 
         // 著者の存在確認
-        validateAuthorsExist(request.authorIds)
+        if (!isAuthorsExist(request.authorIds)) {
+            throw AuthorsNotFoundException(request.authorIds)
+        }
 
-        // publicationStatusを文字列からenumに変換
-        val publicationStatus = PublicationStatus.fromCode(request.publicationStatus)
-
-        val updatedBook = Book(
-            id = id,
-            title = request.title.trim(),
-            price = request.price,
-            currencyCode = request.currencyCode,
-            publicationStatus = publicationStatus,
-            authorIds = request.authorIds,
-        )
+        val updatedBook =
+            Book(
+                id = id,
+                title = request.title.trim(),
+                price = request.price,
+                currencyCode = request.currencyCode,
+                publicationStatus = request.publicationStatus,
+                authorIds = request.authorIds,
+                lockNo = request.lockNo,
+            )
 
         val updatedRows = bookRepository.update(updatedBook)
         if (updatedRows == 0) {
             throw OptimisticLockException()
         }
     }
-     */
 }
