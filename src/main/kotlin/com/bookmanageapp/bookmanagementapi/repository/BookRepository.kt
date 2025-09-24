@@ -19,8 +19,4 @@ interface BookRepository {
         size: Int,
     ): Pair<List<Book>, Long>
 
-    fun findAllWithOffsetPagination(
-        limit: Int,
-        offset: Int,
-    ): Pair<List<Book>, Long>
 }
