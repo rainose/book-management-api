@@ -18,4 +18,6 @@ interface BookRepository {
         page: Int,
         size: Int,
     ): Pair<List<Book>, Long>
+
+    fun findByAuthorId(authorId: Long): List<Book>
 }
