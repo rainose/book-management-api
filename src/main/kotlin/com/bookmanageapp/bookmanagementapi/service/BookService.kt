@@ -3,6 +3,8 @@ package com.bookmanageapp.bookmanagementapi.service
 import com.bookmanageapp.bookmanagementapi.domain.Book
 import com.bookmanageapp.bookmanagementapi.domain.NewBook
 import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
+import com.bookmanageapp.bookmanagementapi.dto.AuthorSummaryResponse
+import com.bookmanageapp.bookmanagementapi.dto.BookResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateBookRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
@@ -12,7 +14,6 @@ import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.math.ceil
 
 @Service
 @Transactional
@@ -59,20 +60,56 @@ class BookService(
         size: Int,
     ): PagedResponse<Book> {
         val (books, totalCount) = bookRepository.findAllWithPagination(page, size)
-        val totalPages = if (totalCount > 0) ceil(totalCount.toDouble() / size).toInt() else 0
-
-        val paginationInfo =
-            PaginationInfo(
-                currentPage = page,
-                pageSize = size,
-                totalElements = totalCount,
-                totalPages = totalPages,
-                hasNext = page < totalPages,
-                hasPrevious = page > 1,
-            )
+        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
 
         return PagedResponse(
             content = books,
+            pagination = paginationInfo,
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllBooksWithAuthors(
+        page: Int,
+        size: Int,
+    ): PagedResponse<BookResponse> {
+        val (books, totalCount) = bookRepository.findAllWithPagination(page, size)
+
+        // 全ての著者IDを収集
+        val allAuthorIds = books.flatMap { it.authorIds }.distinct()
+
+        // 著者情報を一括取得
+        val authors = authorRepository.findByIds(allAuthorIds)
+        val authorMap = authors.associateBy { it.id }
+
+        // BookResponseに変換
+        val bookResponses =
+            books.map { book ->
+                val bookAuthors =
+                    book.authorIds.mapNotNull { authorId ->
+                        authorMap[authorId]?.let { author ->
+                            AuthorSummaryResponse(
+                                id = author.id,
+                                name = author.name,
+                                birthDate = author.birthDate,
+                            )
+                        }
+                    }
+
+                BookResponse(
+                    id = requireNotNull(book.id),
+                    title = book.title,
+                    price = book.price,
+                    currencyCode = book.currencyCode,
+                    publicationStatus = book.publicationStatus,
+                    authors = bookAuthors,
+                )
+            }
+
+        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
+
+        return PagedResponse(
+            content = bookResponses,
             pagination = paginationInfo,
         )
     }

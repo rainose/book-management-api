@@ -176,9 +176,9 @@ class BookRepositoryImpl(
         }
     }
 
-    override fun findAllWithPagination(
-        page: Int,
-        size: Int,
+    private fun findBooksWithPagination(
+        limit: Int,
+        offset: Int,
     ): Pair<List<Book>, Long> {
         // 1. 書籍総数を取得
         val totalCount =
@@ -187,13 +187,18 @@ class BookRepositoryImpl(
                 .from(M_BOOKS)
                 .fetchOne(0, Long::class.java) ?: 0L
 
+        // offsetが範囲外の場合、不要なクエリをスキップ
+        if (offset >= totalCount) {
+            return Pair(emptyList(), totalCount)
+        }
+
         // 2. ページング対象の書籍を取得
         val bookRecords =
             dslContext
                 .selectFrom(M_BOOKS)
                 .orderBy(M_BOOKS.ID.asc())
-                .limit(size)
-                .offset((page - 1) * size)
+                .limit(limit)
+                .offset(offset)
                 .fetch()
 
         if (bookRecords.isEmpty()) {
@@ -231,5 +236,13 @@ class BookRepositoryImpl(
             }
 
         return Pair(books, totalCount)
+    }
+
+    override fun findAllWithPagination(
+        page: Int,
+        size: Int,
+    ): Pair<List<Book>, Long> {
+        val offset = (page - 1) * size
+        return findBooksWithPagination(size, offset)
     }
 }
