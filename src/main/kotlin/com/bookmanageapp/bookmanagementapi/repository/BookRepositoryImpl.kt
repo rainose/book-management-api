@@ -93,8 +93,9 @@ class BookRepositoryImpl(
 
         return dslContext.transactionResult { configuration ->
             val transactionDsl = configuration.dsl()
+            val bookId = requireNotNull(book.id) { "Book ID must not be null for update operation" }
 
-            // まず書籍情報を更新
+            // 楽観的ロック付き更新
             val updatedRows =
                 transactionDsl
                     .update(M_BOOKS)
@@ -106,16 +107,17 @@ class BookRepositoryImpl(
                     .set(M_BOOKS.UPDATED_AT, now)
                     .set(M_BOOKS.UPDATED_BY, "api_executer")
                     .where(
-                        M_BOOKS.ID.eq(book.id)
+                        M_BOOKS.ID.eq(bookId)
                             .and(M_BOOKS.LOCK_NO.eq(book.lockNo)),
                     )
                     .execute()
 
+            // 更新が成功した場合のみ著者関連を更新
             if (updatedRows > 0) {
                 // 既存の著者関連を削除
                 transactionDsl
                     .deleteFrom(T_BOOK_AUTHORS)
-                    .where(T_BOOK_AUTHORS.BOOK_ID.eq(book.id))
+                    .where(T_BOOK_AUTHORS.BOOK_ID.eq(bookId))
                     .execute()
 
                 // 新しい著者関連を一括挿入
@@ -123,7 +125,7 @@ class BookRepositoryImpl(
                     val insertQueries =
                         book.authorIds.map { authorId ->
                             transactionDsl.insertInto(T_BOOK_AUTHORS)
-                                .set(T_BOOK_AUTHORS.BOOK_ID, book.id)
+                                .set(T_BOOK_AUTHORS.BOOK_ID, bookId)
                                 .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
                         }
                     transactionDsl.batch(insertQueries).execute()
