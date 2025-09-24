@@ -12,11 +12,6 @@ enum class PublicationStatus(val code: String) {
     }
 
     companion object {
-        fun fromString(value: String): PublicationStatus {
-            return entries.find { it.name.equals(value, ignoreCase = true) }
-                ?: throw IllegalArgumentException()
-        }
-
         fun fromCode(code: String): PublicationStatus {
             return entries.find { it.code == code }
                 ?: throw IllegalArgumentException()

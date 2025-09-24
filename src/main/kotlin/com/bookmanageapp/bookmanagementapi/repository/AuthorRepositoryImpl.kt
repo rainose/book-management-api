@@ -36,20 +36,7 @@ class AuthorRepositoryImpl(
         ) > 0
     }
 
-    override fun findByIds(ids: List<Long>): List<Author> {
-        return dslContext
-            .selectFrom(M_AUTHORS)
-            .where(M_AUTHORS.ID.`in`(ids))
-            .fetch()
-            .map { record ->
-                Author(
-                    id = requireNotNull(record.id),
-                    name = record.name,
-                    birthDate = record.birthDate,
-                    lockNo = requireNotNull(record.lockNo),
-                )
-            }
-    }
+    
 
     override fun countByIds(ids: List<Long>): Int {
         return dslContext
