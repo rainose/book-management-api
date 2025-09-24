@@ -11,6 +11,16 @@ import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import java.math.BigDecimal
 
+/**
+ * 書籍作成リクエストのデータ転送オブジェクト(DTO)。
+ *
+ * @property title 書籍のタイトル
+ * @property price 価格
+ * @property currencyCode 通貨コード
+ * @property publicationStatus 出版ステータスコード
+ * @property authorIds 著者IDのリスト
+ * @author nose yudai
+ */
 data class CreateBookRequest(
     @field:NotBlank(message = "タイトルは必須です")
     @field:Size(max = 255, message = "タイトルは255文字以内で入力してください")
@@ -33,6 +43,17 @@ data class CreateBookRequest(
         >,
 )
 
+/**
+ * 書籍更新リクエストのデータ転送オブジェクト(DTO)。
+ *
+ * @property title 書籍のタイトル
+ * @property price 価格
+ * @property currencyCode 通貨コード
+ * @property publicationStatus 出版ステータス
+ * @property authorIds 著者IDのリスト
+ * @property lockNo 楽観的ロックのためのバージョン番号
+ * @author nose yudai
+ */
 data class UpdateBookRequest(
     @field:NotBlank(message = "タイトルは必須です")
     @field:Size(max = 255, message = "タイトルは255文字以内で入力してください")
@@ -56,8 +77,16 @@ data class UpdateBookRequest(
     val lockNo: Int,
 )
 
-
-
+/**
+ * 書籍のサマリー情報のレスポンス用データ転送オブジェクト(DTO)。
+ *
+ * @property id 書籍ID
+ * @property title 書籍のタイトル
+ * @property price 価格
+ * @property currencyCode 通貨コード
+ * @property publicationStatus 出版ステータス
+ * @author nose yudai
+ */
 data class BookSummaryResponse(
     val id: Long,
     val title: String,
