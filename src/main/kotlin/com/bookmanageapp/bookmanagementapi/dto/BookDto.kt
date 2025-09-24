@@ -52,6 +52,8 @@ data class UpdateBookRequest(
         @Positive(message = "Author ID must be positive")
         Long,
         >,
+    @field:NotNull(message = "Lock number is required")
+    val lockNo: Int,
 )
 
 data class BookResponse(
