@@ -8,8 +8,10 @@ import com.bookmanageapp.bookmanagementapi.dto.BookResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateBookRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
+import com.bookmanageapp.bookmanagementapi.dto.UpdateBookRequest
 import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.BookNotFoundException
+import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
 import org.springframework.stereotype.Service
@@ -22,9 +24,12 @@ class BookService(
     private val authorRepository: AuthorRepository,
 ) {
     fun createBook(request: CreateBookRequest): Long {
+        // 重複を除去
+        val uniqueAuthorIds = request.authorIds.distinct()
+
         // 著者の存在確認
-        if (!isAuthorsExist(request.authorIds)) {
-            throw AuthorsNotFoundException(request.authorIds)
+        if (!isAuthorsExist(uniqueAuthorIds)) {
+            throw AuthorsNotFoundException(uniqueAuthorIds)
         }
 
         // publicationStatusを文字列からenumに変換
@@ -36,7 +41,7 @@ class BookService(
                 price = request.price,
                 currencyCode = request.currencyCode,
                 publicationStatus = publicationStatus,
-                authorIds = request.authorIds,
+                authorIds = uniqueAuthorIds,
             )
 
         val bookId = bookRepository.create(book)
@@ -115,13 +120,11 @@ class BookService(
     }
 
     private fun isAuthorsExist(authorIds: List<Long>): Boolean {
-        val existingCount = authorRepository.findByIds(authorIds).size
+        // 重複が既に除去されていることを前提とする
+        val existingCount = authorRepository.countByIds(authorIds)
         return existingCount == authorIds.size
     }
 
-    // TODO: UpdateBookRequestのpublicationStatus型をStringに修正後に実装
-
-    /*
     fun updateBook(
         id: Long,
         request: UpdateBookRequest,
@@ -130,25 +133,28 @@ class BookService(
             throw BookNotFoundException(id)
         }
 
+        // 重複を除去
+        val uniqueAuthorIds = request.authorIds.distinct()
+
         // 著者の存在確認
-        validateAuthorsExist(request.authorIds)
+        if (!isAuthorsExist(uniqueAuthorIds)) {
+            throw AuthorsNotFoundException(uniqueAuthorIds)
+        }
 
-        // publicationStatusを文字列からenumに変換
-        val publicationStatus = PublicationStatus.fromCode(request.publicationStatus)
-
-        val updatedBook = Book(
-            id = id,
-            title = request.title.trim(),
-            price = request.price,
-            currencyCode = request.currencyCode,
-            publicationStatus = publicationStatus,
-            authorIds = request.authorIds,
-        )
+        val updatedBook =
+            Book(
+                id = id,
+                title = request.title.trim(),
+                price = request.price,
+                currencyCode = request.currencyCode,
+                publicationStatus = request.publicationStatus,
+                authorIds = uniqueAuthorIds,
+                lockNo = request.lockNo,
+            )
 
         val updatedRows = bookRepository.update(updatedBook)
         if (updatedRows == 0) {
             throw OptimisticLockException()
         }
     }
-     */
 }

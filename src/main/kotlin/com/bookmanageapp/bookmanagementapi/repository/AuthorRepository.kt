@@ -14,6 +14,8 @@ interface AuthorRepository {
 
     fun findByIds(ids: List<Long>): List<Author>
 
+    fun countByIds(ids: List<Long>): Int
+
     fun findAll(): List<Author>
 
     fun findAllWithPagination(
