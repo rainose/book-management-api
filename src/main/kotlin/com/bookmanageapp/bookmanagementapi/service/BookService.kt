@@ -104,8 +104,12 @@ class BookService(
         id: Long,
         request: UpdateBookRequest,
     ) {
-        if (!bookRepository.existsById(id)) {
-            throw BookNotFoundException(id)
+        val currentBook = bookRepository.findById(id) ?: throw BookNotFoundException(id)
+
+        if (!currentBook.publicationStatus.canTransitionTo(request.publicationStatus)) {
+            throw IllegalArgumentException(
+                "Publication status cannot be changed from ${currentBook.publicationStatus.name} to ${request.publicationStatus.name}",
+            )
         }
 
         // 重複を除去
