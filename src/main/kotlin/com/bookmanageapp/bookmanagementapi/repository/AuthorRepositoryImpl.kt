@@ -51,6 +51,14 @@ class AuthorRepositoryImpl(
             }
     }
 
+    override fun countByIds(ids: List<Long>): Int {
+        return dslContext
+            .selectCount()
+            .from(M_AUTHORS)
+            .where(M_AUTHORS.ID.`in`(ids))
+            .fetchOne(0, Int::class.java) ?: 0
+    }
+
     override fun create(author: NewAuthor): Long? {
         val now = LocalDateTime.now()
         return dslContext
