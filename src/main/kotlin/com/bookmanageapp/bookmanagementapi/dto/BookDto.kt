@@ -56,14 +56,7 @@ data class UpdateBookRequest(
     val lockNo: Int,
 )
 
-data class BookResponse(
-    val id: Long,
-    val title: String,
-    val price: BigDecimal,
-    val currencyCode: String,
-    val publicationStatus: PublicationStatus,
-    val authors: List<AuthorSummaryResponse>,
-)
+
 
 data class BookSummaryResponse(
     val id: Long,

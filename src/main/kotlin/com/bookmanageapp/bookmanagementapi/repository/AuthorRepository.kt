@@ -12,7 +12,5 @@ interface AuthorRepository {
 
     fun existsById(id: Long): Boolean
 
-    fun findByIds(ids: List<Long>): List<Author>
-
     fun countByIds(ids: List<Long>): Int
 }

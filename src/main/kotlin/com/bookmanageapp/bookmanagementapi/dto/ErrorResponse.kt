@@ -10,10 +10,7 @@ data class ErrorResponse(
     val message: String,
     val path: String,
     val details: List<String>? = null,
-) {
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    fun getFormattedTimestamp(): LocalDateTime = timestamp
-}
+)
 
 data class ValidationErrorResponse(
     val timestamp: LocalDateTime = LocalDateTime.now(),
@@ -22,10 +19,7 @@ data class ValidationErrorResponse(
     val message: String,
     val path: String,
     val validationErrors: List<FieldError>,
-) {
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    fun getFormattedTimestamp(): LocalDateTime = timestamp
-}
+)
 
 data class FieldError(
     val field: String,
