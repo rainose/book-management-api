@@ -7,7 +7,7 @@ import com.bookmanageapp.bookmanagementapi.dto.AuthorResponse
 import com.bookmanageapp.bookmanagementapi.dto.BookSummaryResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.dto.UpdateAuthorRequest
-import com.bookmanageapp.bookmanagementapi.exception.AuthorNotFoundException
+import com.bookmanageapp.bookmanagementapi.exception.NotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
@@ -35,7 +35,7 @@ class AuthorService(
         request: UpdateAuthorRequest,
     ) {
         if (!authorRepository.existsById(id)) {
-            throw AuthorNotFoundException(id)
+            throw NotFoundException("Author not found with ID: $id")
         }
 
         val updatedAuthor =
@@ -57,7 +57,7 @@ class AuthorService(
         // 著者の存在確認
         val author =
             authorRepository.findById(authorId)
-                ?: throw AuthorNotFoundException(authorId)
+                ?: throw NotFoundException("Author not found with ID: $authorId")
 
         // 著者が書いた書籍を取得
         val books = bookRepository.findByAuthorId(authorId)
