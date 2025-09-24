@@ -6,8 +6,6 @@ import com.bookmanageapp.bookmanagementapi.dto.AuthorBooksResponse
 import com.bookmanageapp.bookmanagementapi.dto.AuthorResponse
 import com.bookmanageapp.bookmanagementapi.dto.BookSummaryResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
-import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
-import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
 import com.bookmanageapp.bookmanagementapi.dto.UpdateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.exception.AuthorNotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
@@ -30,38 +28,6 @@ class AuthorService(
             )
         val authorId = authorRepository.create(author)
         return requireNotNull(authorId)
-    }
-
-    @Transactional(readOnly = true)
-    fun getAuthor(id: Long): Author {
-        return authorRepository.findById(id)
-            ?: throw AuthorNotFoundException(id)
-    }
-
-    @Transactional(readOnly = true)
-    fun validateAuthorExists(id: Long) {
-        if (!authorRepository.existsById(id)) {
-            throw AuthorNotFoundException(id)
-        }
-    }
-
-    @Transactional(readOnly = true)
-    fun getAllAuthors(): List<Author> {
-        return authorRepository.findAll()
-    }
-
-    @Transactional(readOnly = true)
-    fun getAllAuthorsWithPagination(
-        page: Int,
-        size: Int,
-    ): PagedResponse<Author> {
-        val (authors, totalCount) = authorRepository.findAllWithPagination(page, size)
-        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
-
-        return PagedResponse(
-            content = authors,
-            pagination = paginationInfo,
-        )
     }
 
     fun updateAuthor(
