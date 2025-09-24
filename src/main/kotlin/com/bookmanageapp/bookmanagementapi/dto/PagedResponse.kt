@@ -16,7 +16,11 @@ data class PaginationInfo(
     val hasPrevious: Boolean,
 ) {
     companion object {
-        fun fromPageNumber(page: Int, size: Int, totalElements: Long): PaginationInfo {
+        fun fromPageNumber(
+            page: Int,
+            size: Int,
+            totalElements: Long,
+        ): PaginationInfo {
             val totalPages = if (totalElements > 0) ceil(totalElements.toDouble() / size).toInt() else 0
             return PaginationInfo(
                 currentPage = page,
@@ -27,6 +31,5 @@ data class PaginationInfo(
                 hasPrevious = page > 1,
             )
         }
-
     }
 }

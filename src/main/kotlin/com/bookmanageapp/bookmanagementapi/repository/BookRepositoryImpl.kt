@@ -245,5 +245,4 @@ class BookRepositoryImpl(
         val offset = (page - 1) * size
         return findBooksWithPagination(size, offset)
     }
-
 }
