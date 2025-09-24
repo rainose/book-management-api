@@ -134,48 +134,6 @@ class BookRepositoryImpl(
         }
     }
 
-    override fun findAll(): List<Book> {
-        // 1. 全書籍を取得
-        val bookRecords =
-            dslContext
-                .selectFrom(M_BOOKS)
-                .orderBy(M_BOOKS.ID.asc())
-                .fetch()
-
-        if (bookRecords.isEmpty()) {
-            return emptyList()
-        }
-
-        // 2. 書籍IDリストを抽出
-        val bookIds = bookRecords.mapNotNull { it.id }
-
-        // 3. 一度のクエリで全著者情報を取得
-        val bookAuthorMap =
-            dslContext
-                .select(T_BOOK_AUTHORS.BOOK_ID, T_BOOK_AUTHORS.AUTHOR_ID)
-                .from(T_BOOK_AUTHORS)
-                .where(T_BOOK_AUTHORS.BOOK_ID.`in`(bookIds))
-                .fetch()
-                .groupBy { it.value1() }
-                .mapValues { entry -> entry.value.mapNotNull { it.value2() } }
-
-        // 4. 書籍オブジェクトを構築
-        return bookRecords.map { record ->
-            val bookId = requireNotNull(record.id)
-            val authorIds = bookAuthorMap[bookId] ?: emptyList()
-
-            Book(
-                id = bookId,
-                title = record.title,
-                price = record.price,
-                currencyCode = record.currencyCode,
-                publicationStatus = PublicationStatus.fromCode(record.publicationStatus),
-                authorIds = authorIds,
-                lockNo = requireNotNull(record.lockNo),
-            )
-        }
-    }
-
     private fun findBooksWithPagination(
         limit: Int,
         offset: Int,
