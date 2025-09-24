@@ -5,6 +5,7 @@ import com.bookmanageapp.bookmanagementapi.domain.NewBook
 import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
 import com.bookmanageapp.bookmanagementapi.dto.CreateBookRequest
 import com.bookmanageapp.bookmanagementapi.dto.UpdateBookRequest
+import com.bookmanageapp.bookmanagementapi.exception.InvalidRequestException
 import com.bookmanageapp.bookmanagementapi.exception.NotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
@@ -24,7 +25,7 @@ class BookService(
 
         // 著者の存在確認
         if (!isAuthorsExist(uniqueAuthorIds)) {
-            throw NotFoundException("Authors not found with IDs: ${uniqueAuthorIds.joinToString(", ")}")
+            throw NotFoundException("指定されたIDの著者が見つかりません: ${uniqueAuthorIds.joinToString(", ")}")
         }
 
         // publicationStatusを文字列からenumに変換
@@ -53,11 +54,11 @@ class BookService(
         id: Long,
         request: UpdateBookRequest,
     ) {
-        val currentBook = bookRepository.findById(id) ?: throw NotFoundException("Book not found with ID: $id")
+        val currentBook = bookRepository.findById(id) ?: throw NotFoundException("指定されたIDの書籍が見つかりません: $id")
 
         if (!currentBook.publicationStatus.canTransitionTo(request.publicationStatus)) {
-            throw IllegalArgumentException(
-                "Publication status cannot be changed from ${currentBook.publicationStatus.name} to ${request.publicationStatus.name}",
+            throw InvalidRequestException(
+                "出版状況を出版済みから未出版に変更することはできません",
             )
         }
 
@@ -66,7 +67,7 @@ class BookService(
 
         // 著者の存在確認
         if (!isAuthorsExist(uniqueAuthorIds)) {
-            throw NotFoundException("Authors not found with IDs: ${uniqueAuthorIds.joinToString(", ")}")
+            throw NotFoundException("指定されたIDの著者が見つかりません: ${uniqueAuthorIds.joinToString(", ")}")
         }
 
         val updatedBook =

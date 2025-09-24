@@ -9,10 +9,10 @@ import java.time.LocalDate
 
 @ValidBirthDate
 data class CreateAuthorRequest(
-    @field:NotBlank(message = "Name is required")
-    @field:Size(max = 255, message = "Name must not exceed 255 characters")
+    @field:NotBlank(message = "名前は必須です")
+    @field:Size(max = 255, message = "名前は255文字以内で入力してください")
     val name: String,
-    @field:NotNull(message = "Birth date is required")
+    @field:NotNull(message = "生年月日は必須です")
     @JsonFormat(pattern = "yyyy-MM-dd")
     override val birthDate: LocalDate,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
@@ -21,13 +21,13 @@ data class CreateAuthorRequest(
 
 @ValidBirthDate
 data class UpdateAuthorRequest(
-    @field:NotBlank(message = "Name is required")
-    @field:Size(max = 255, message = "Name must not exceed 255 characters")
+    @field:NotBlank(message = "名前は必須です")
+    @field:Size(max = 255, message = "名前は255文字以内で入力してください")
     val name: String,
-    @field:NotNull(message = "Birth date is required")
+    @field:NotNull(message = "生年月日は必須です")
     @JsonFormat(pattern = "yyyy-MM-dd")
     override val birthDate: LocalDate,
-    @field:NotNull(message = "Lock number is required")
+    @field:NotNull(message = "ロックナンバーは必須です")
     val lockNo: Int,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
     override val clientTimeZone: String,

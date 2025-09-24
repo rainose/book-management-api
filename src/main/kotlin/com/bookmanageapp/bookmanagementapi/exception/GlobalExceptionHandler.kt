@@ -21,8 +21,8 @@ class GlobalExceptionHandler {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.NOT_FOUND.value(),
-                error = "Not Found",
-                message = ex.message ?: "Resource not found",
+                error = "見つかりません",
+                message = ex.message ?: "リソースが見つかりません",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
@@ -36,8 +36,8 @@ class GlobalExceptionHandler {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.BAD_REQUEST.value(),
-                error = "Bad Request",
-                message = ex.message ?: "Invalid request",
+                error = "不正なリクエスト",
+                message = ex.message ?: "不正なリクエストです",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
@@ -53,15 +53,15 @@ class GlobalExceptionHandler {
                 FieldError(
                     field = fieldError.field,
                     rejectedValue = fieldError.rejectedValue,
-                    message = fieldError.defaultMessage ?: "Invalid value",
+                    message = fieldError.defaultMessage ?: "不正な値です",
                 )
             }
 
         val errorResponse =
             ValidationErrorResponse(
                 status = HttpStatus.BAD_REQUEST.value(),
-                error = "Validation Failed",
-                message = "Request validation failed",
+                error = "バリデーションエラー",
+                message = "リクエストのバリデーションに失敗しました",
                 path = getPath(request),
                 validationErrors = fieldErrors,
             )
@@ -76,8 +76,8 @@ class GlobalExceptionHandler {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.CONFLICT.value(),
-                error = "Conflict",
-                message = ex.message ?: "The resource has been modified by another user",
+                error = "競合",
+                message = ex.message ?: "リソースが他のユーザーによって変更されました",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse)
@@ -91,8 +91,8 @@ class GlobalExceptionHandler {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                error = "Database Error",
-                message = ex.message ?: "Database operation failed",
+                error = "データベースエラー",
+                message = ex.message ?: "データベース操作に失敗しました",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
@@ -106,8 +106,8 @@ class GlobalExceptionHandler {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                error = "Database Error",
-                message = "Database operation failed",
+                error = "データベースエラー",
+                message = "データベース操作に失敗しました",
                 path = getPath(request),
                 details = listOf("SQL State: ${ex.sqlState}", "Error Code: ${ex.errorCode}"),
             )
@@ -122,8 +122,8 @@ class GlobalExceptionHandler {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                error = "Internal Server Error",
-                message = "An unexpected error occurred",
+                error = "サーバー内部エラー",
+                message = "予期せぬエラーが発生しました",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
