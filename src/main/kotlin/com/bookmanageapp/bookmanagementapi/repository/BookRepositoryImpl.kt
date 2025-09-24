@@ -245,4 +245,53 @@ class BookRepositoryImpl(
         val offset = (page - 1) * size
         return findBooksWithPagination(size, offset)
     }
+
+    override fun findByAuthorId(authorId: Long): List<Book> {
+        // 1. 指定された著者が書いた書籍IDを取得
+        val bookIds =
+            dslContext
+                .select(T_BOOK_AUTHORS.BOOK_ID)
+                .from(T_BOOK_AUTHORS)
+                .where(T_BOOK_AUTHORS.AUTHOR_ID.eq(authorId))
+                .fetch()
+                .mapNotNull { it.value1() }
+
+        if (bookIds.isEmpty()) {
+            return emptyList()
+        }
+
+        // 2. 書籍情報を取得
+        val bookRecords =
+            dslContext
+                .selectFrom(M_BOOKS)
+                .where(M_BOOKS.ID.`in`(bookIds))
+                .orderBy(M_BOOKS.ID.asc())
+                .fetch()
+
+        // 3. 一度のクエリで対象書籍の全著者情報を取得
+        val bookAuthorMap =
+            dslContext
+                .select(T_BOOK_AUTHORS.BOOK_ID, T_BOOK_AUTHORS.AUTHOR_ID)
+                .from(T_BOOK_AUTHORS)
+                .where(T_BOOK_AUTHORS.BOOK_ID.`in`(bookIds))
+                .fetch()
+                .groupBy { it.value1() }
+                .mapValues { entry -> entry.value.mapNotNull { it.value2() } }
+
+        // 4. 書籍オブジェクトを構築
+        return bookRecords.map { record ->
+            val bookId = requireNotNull(record.id)
+            val allAuthorIds = bookAuthorMap[bookId] ?: emptyList()
+
+            Book(
+                id = bookId,
+                title = record.title,
+                price = record.price,
+                currencyCode = record.currencyCode,
+                publicationStatus = PublicationStatus.fromCode(record.publicationStatus),
+                authorIds = allAuthorIds,
+                lockNo = requireNotNull(record.lockNo),
+            )
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.bookmanageapp.bookmanagementapi.controller
 
+import com.bookmanageapp.bookmanagementapi.dto.AuthorBooksResponse
 import com.bookmanageapp.bookmanagementapi.dto.AuthorSummaryResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
@@ -61,5 +62,13 @@ class AuthorController(
     ): ResponseEntity<Void> {
         authorService.updateAuthor(id, request)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/{id}/books")
+    fun getAuthorBooks(
+        @PathVariable id: Long,
+    ): ResponseEntity<AuthorBooksResponse> {
+        val response = authorService.getAuthorBooks(id)
+        return ResponseEntity.ok(response)
     }
 }
