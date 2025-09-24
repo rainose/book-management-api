@@ -35,7 +35,7 @@ class AuthorService(
         request: UpdateAuthorRequest,
     ) {
         if (!authorRepository.existsById(id)) {
-            throw NotFoundException("Author not found with ID: $id")
+            throw NotFoundException("指定されたIDの著者が見つかりません: $id")
         }
 
         val updatedAuthor =
@@ -57,7 +57,7 @@ class AuthorService(
         // 著者の存在確認
         val author =
             authorRepository.findById(authorId)
-                ?: throw NotFoundException("Author not found with ID: $authorId")
+                ?: throw NotFoundException("指定されたIDの著者が見つかりません: $authorId")
 
         // 著者が書いた書籍を取得
         val books = bookRepository.findByAuthorId(authorId)

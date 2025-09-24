@@ -19,5 +19,5 @@ class DatabaseException(
 ) : BookManagementException(message, cause)
 
 class OptimisticLockException(
-    message: String = "The resource has been modified by another user. Please refresh and try again.",
+    message: String = "リソースが他のユーザーによって変更されました。画面を更新して再度お試しください。",
 ) : BookManagementException(message)
