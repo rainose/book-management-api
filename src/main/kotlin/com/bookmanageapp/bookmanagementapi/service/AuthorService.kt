@@ -11,7 +11,6 @@ import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.math.ceil
 
 @Service
 @Transactional
@@ -52,17 +51,7 @@ class AuthorService(
         size: Int,
     ): PagedResponse<Author> {
         val (authors, totalCount) = authorRepository.findAllWithPagination(page, size)
-        val totalPages = if (totalCount > 0) ceil(totalCount.toDouble() / size).toInt() else 0
-
-        val paginationInfo =
-            PaginationInfo(
-                currentPage = page,
-                pageSize = size,
-                totalElements = totalCount,
-                totalPages = totalPages,
-                hasNext = page < totalPages,
-                hasPrevious = page > 1,
-            )
+        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
 
         return PagedResponse(
             content = authors,
