@@ -18,5 +18,4 @@ interface BookRepository {
         page: Int,
         size: Int,
     ): Pair<List<Book>, Long>
-
 }
