@@ -49,31 +49,6 @@ class BookService(
     }
 
     @Transactional(readOnly = true)
-    fun getBook(id: Long): Book {
-        return bookRepository.findById(id)
-            ?: throw BookNotFoundException(id)
-    }
-
-    @Transactional(readOnly = true)
-    fun getAllBooks(): List<Book> {
-        return bookRepository.findAll()
-    }
-
-    @Transactional(readOnly = true)
-    fun getAllBooksWithPagination(
-        page: Int,
-        size: Int,
-    ): PagedResponse<Book> {
-        val (books, totalCount) = bookRepository.findAllWithPagination(page, size)
-        val paginationInfo = PaginationInfo.fromPageNumber(page, size, totalCount)
-
-        return PagedResponse(
-            content = books,
-            pagination = paginationInfo,
-        )
-    }
-
-    @Transactional(readOnly = true)
     fun getAllBooksWithAuthors(
         page: Int,
         size: Int,

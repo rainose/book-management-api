@@ -12,8 +12,6 @@ interface BookRepository {
 
     fun existsById(id: Long): Boolean
 
-    fun findAll(): List<Book>
-
     fun findAllWithPagination(
         page: Int,
         size: Int,
