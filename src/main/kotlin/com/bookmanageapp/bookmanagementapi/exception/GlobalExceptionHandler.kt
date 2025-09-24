@@ -13,76 +13,31 @@ import java.sql.SQLException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
-    @ExceptionHandler(BookNotFoundException::class)
-    fun handleBookNotFoundException(
-        ex: BookNotFoundException,
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFoundException(
+        ex: NotFoundException,
         request: WebRequest,
     ): ResponseEntity<ErrorResponse> {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.NOT_FOUND.value(),
                 error = "Not Found",
-                message = ex.message ?: "Book not found",
+                message = ex.message ?: "Resource not found",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
-    @ExceptionHandler(AuthorNotFoundException::class)
-    fun handleAuthorNotFoundException(
-        ex: AuthorNotFoundException,
-        request: WebRequest,
-    ): ResponseEntity<ErrorResponse> {
-        val errorResponse =
-            ErrorResponse(
-                status = HttpStatus.NOT_FOUND.value(),
-                error = "Not Found",
-                message = ex.message ?: "Author not found",
-                path = getPath(request),
-            )
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
-    }
-
-    @ExceptionHandler(AuthorsNotFoundException::class)
-    fun handleAuthorsNotFoundException(
-        ex: AuthorsNotFoundException,
-        request: WebRequest,
-    ): ResponseEntity<ErrorResponse> {
-        val errorResponse =
-            ErrorResponse(
-                status = HttpStatus.NOT_FOUND.value(),
-                error = "Not Found",
-                message = ex.message ?: "Authors not found",
-                path = getPath(request),
-            )
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
-    }
-
-    @ExceptionHandler(InvalidPublicationStatusTransitionException::class)
-    fun handleInvalidPublicationStatusTransitionException(
-        ex: InvalidPublicationStatusTransitionException,
+    @ExceptionHandler(InvalidRequestException::class)
+    fun handleInvalidRequestException(
+        ex: InvalidRequestException,
         request: WebRequest,
     ): ResponseEntity<ErrorResponse> {
         val errorResponse =
             ErrorResponse(
                 status = HttpStatus.BAD_REQUEST.value(),
                 error = "Bad Request",
-                message = ex.message ?: "Invalid publication status transition",
-                path = getPath(request),
-            )
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
-    }
-
-    @ExceptionHandler(ValidationException::class)
-    fun handleValidationException(
-        ex: ValidationException,
-        request: WebRequest,
-    ): ResponseEntity<ErrorResponse> {
-        val errorResponse =
-            ErrorResponse(
-                status = HttpStatus.BAD_REQUEST.value(),
-                error = "Validation Error",
-                message = ex.message ?: "Validation failed",
+                message = ex.message ?: "Invalid request",
                 path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)

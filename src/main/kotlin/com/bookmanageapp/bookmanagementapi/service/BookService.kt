@@ -9,8 +9,7 @@ import com.bookmanageapp.bookmanagementapi.dto.CreateBookRequest
 import com.bookmanageapp.bookmanagementapi.dto.PagedResponse
 import com.bookmanageapp.bookmanagementapi.dto.PaginationInfo
 import com.bookmanageapp.bookmanagementapi.dto.UpdateBookRequest
-import com.bookmanageapp.bookmanagementapi.exception.AuthorsNotFoundException
-import com.bookmanageapp.bookmanagementapi.exception.BookNotFoundException
+import com.bookmanageapp.bookmanagementapi.exception.NotFoundException
 import com.bookmanageapp.bookmanagementapi.exception.OptimisticLockException
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
@@ -29,7 +28,7 @@ class BookService(
 
         // 著者の存在確認
         if (!isAuthorsExist(uniqueAuthorIds)) {
-            throw AuthorsNotFoundException(uniqueAuthorIds)
+            throw NotFoundException("Authors not found with IDs: ${uniqueAuthorIds.joinToString(", ")}")
         }
 
         // publicationStatusを文字列からenumに変換
@@ -104,7 +103,7 @@ class BookService(
         id: Long,
         request: UpdateBookRequest,
     ) {
-        val currentBook = bookRepository.findById(id) ?: throw BookNotFoundException(id)
+        val currentBook = bookRepository.findById(id) ?: throw NotFoundException("Book not found with ID: $id")
 
         if (!currentBook.publicationStatus.canTransitionTo(request.publicationStatus)) {
             throw IllegalArgumentException(
@@ -117,7 +116,7 @@ class BookService(
 
         // 著者の存在確認
         if (!isAuthorsExist(uniqueAuthorIds)) {
-            throw AuthorsNotFoundException(uniqueAuthorIds)
+            throw NotFoundException("Authors not found with IDs: ${uniqueAuthorIds.joinToString(", ")}")
         }
 
         val updatedBook =

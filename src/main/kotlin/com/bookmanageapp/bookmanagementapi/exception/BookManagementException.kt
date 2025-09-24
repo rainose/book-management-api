@@ -5,24 +5,11 @@ sealed class BookManagementException(
     cause: Throwable? = null,
 ) : RuntimeException(message, cause)
 
-class BookNotFoundException(
-    bookId: Long,
-) : BookManagementException("Book not found with ID: $bookId")
+class NotFoundException(
+    message: String,
+) : BookManagementException(message)
 
-class AuthorNotFoundException(
-    authorId: Long,
-) : BookManagementException("Author not found with ID: $authorId")
-
-class AuthorsNotFoundException(
-    authorIds: List<Long>,
-) : BookManagementException("Authors not found with IDs: ${authorIds.joinToString(", ")}")
-
-class InvalidPublicationStatusTransitionException(
-    from: String,
-    to: String,
-) : BookManagementException("Invalid publication status transition from $from to $to")
-
-class ValidationException(
+class InvalidRequestException(
     message: String,
 ) : BookManagementException(message)
 
