@@ -24,9 +24,12 @@ class BookService(
     private val authorRepository: AuthorRepository,
 ) {
     fun createBook(request: CreateBookRequest): Long {
+        // 重複を除去
+        val uniqueAuthorIds = request.authorIds.distinct()
+
         // 著者の存在確認
-        if (!isAuthorsExist(request.authorIds)) {
-            throw AuthorsNotFoundException(request.authorIds)
+        if (!isAuthorsExist(uniqueAuthorIds)) {
+            throw AuthorsNotFoundException(uniqueAuthorIds)
         }
 
         // publicationStatusを文字列からenumに変換
@@ -38,7 +41,7 @@ class BookService(
                 price = request.price,
                 currencyCode = request.currencyCode,
                 publicationStatus = publicationStatus,
-                authorIds = request.authorIds,
+                authorIds = uniqueAuthorIds,
             )
 
         val bookId = bookRepository.create(book)
@@ -117,7 +120,8 @@ class BookService(
     }
 
     private fun isAuthorsExist(authorIds: List<Long>): Boolean {
-        val existingCount = authorRepository.findByIds(authorIds).size
+        // 重複が既に除去されていることを前提とする
+        val existingCount = authorRepository.countByIds(authorIds)
         return existingCount == authorIds.size
     }
 
@@ -129,9 +133,12 @@ class BookService(
             throw BookNotFoundException(id)
         }
 
+        // 重複を除去
+        val uniqueAuthorIds = request.authorIds.distinct()
+
         // 著者の存在確認
-        if (!isAuthorsExist(request.authorIds)) {
-            throw AuthorsNotFoundException(request.authorIds)
+        if (!isAuthorsExist(uniqueAuthorIds)) {
+            throw AuthorsNotFoundException(uniqueAuthorIds)
         }
 
         val updatedBook =
@@ -141,7 +148,7 @@ class BookService(
                 price = request.price,
                 currencyCode = request.currencyCode,
                 publicationStatus = request.publicationStatus,
-                authorIds = request.authorIds,
+                authorIds = uniqueAuthorIds,
                 lockNo = request.lockNo,
             )
 
