@@ -85,7 +85,7 @@ class BookService(
     ) {
         val currentBook = bookRepository.findById(id) ?: throw NotFoundException("指定されたIDの書籍が見つかりません")
 
-        if (!currentBook.publicationStatus.canTransitionTo(request.publicationStatus)) {
+        if (!currentBook.canUpdatePublicationStatus(request.publicationStatus)) {
             throw InvalidRequestException(
                 "出版状況を出版済みから未出版に変更することはできません",
             )
