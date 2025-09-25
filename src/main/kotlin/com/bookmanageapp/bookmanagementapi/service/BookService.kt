@@ -108,7 +108,7 @@ class BookService(
                 currencyCode = request.currencyCode,
                 publicationStatus = updatePublicationStatus,
                 authorIds = uniqueAuthorIds,
-                lockNo = request.lockNo,
+                lockNo = requireNotNull(request.lockNo), // バリデーションを通過したらnullではないはず
             )
 
         val updatedRows = bookRepository.update(updatedBook)

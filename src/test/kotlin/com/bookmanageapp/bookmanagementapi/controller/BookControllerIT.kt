@@ -25,10 +25,16 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.hamcrest.Matchers.greaterThan
+import org.hamcrest.Matchers.hasItem
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.math.BigDecimal
+import org.jooq.DSLContext
+import com.bookmanageapp.jooq.tables.MBooks.Companion.M_BOOKS
+import com.bookmanageapp.jooq.tables.TBookAuthors.Companion.T_BOOK_AUTHORS
+import org.assertj.core.api.Assertions.assertThat
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,6 +54,9 @@ class BookControllerIT {
 
     @Autowired
     private lateinit var bookRepository: BookRepository
+
+    @Autowired
+    private lateinit var dslContext: DSLContext
 
     companion object {
         @Container
@@ -95,6 +104,17 @@ class BookControllerIT {
         return requireNotNull(bookId)
     }
 
+    private fun findBookByTitleAndAuthorIds(title: String, authorIds: List<Long>) =
+        dslContext
+            .select(M_BOOKS.asterisk())
+            .from(M_BOOKS)
+            .join(T_BOOK_AUTHORS).on(M_BOOKS.ID.eq(T_BOOK_AUTHORS.BOOK_ID))
+            .where(M_BOOKS.TITLE.eq(title))
+            .and(T_BOOK_AUTHORS.AUTHOR_ID.`in`(authorIds))
+            .groupBy(M_BOOKS.ID)
+            .having(org.jooq.impl.DSL.count().eq(authorIds.size))
+            .fetchOne()
+
     @Nested
     inner class CreateBookTests {
 
@@ -121,7 +141,16 @@ class BookControllerIT {
             )
                 .andExpect(status().isCreated)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.id").value(greaterThan(0)))
+
+            // 4. DB検証 - titleとauthorIdsで検索して登録データを確認
+            val createdBook = findBookByTitleAndAuthorIds(request.title, request.authorIds)
+            assertThat(createdBook).isNotNull
+            assertThat(createdBook!!.get(M_BOOKS.TITLE)).isEqualTo(request.title)
+            assertThat(createdBook.get(M_BOOKS.PRICE)).isEqualTo(request.price)
+            assertThat(createdBook.get(M_BOOKS.CURRENCY_CODE)).isEqualTo(request.currencyCode)
+            assertThat(createdBook.get(M_BOOKS.PUBLICATION_STATUS)).isEqualTo(request.publicationStatus)
         }
 
         @Test
@@ -147,7 +176,16 @@ class BookControllerIT {
             )
                 .andExpect(status().isCreated)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.id").value(greaterThan(0)))
+
+            // 4. DB検証 - titleとauthorIdsで検索して登録データを確認
+            val createdBook = findBookByTitleAndAuthorIds(request.title, request.authorIds)
+            assertThat(createdBook).isNotNull
+            assertThat(createdBook!!.get(M_BOOKS.TITLE)).isEqualTo(request.title)
+            assertThat(createdBook.get(M_BOOKS.PRICE)).isEqualTo(request.price)
+            assertThat(createdBook.get(M_BOOKS.CURRENCY_CODE)).isEqualTo(request.currencyCode)
+            assertThat(createdBook.get(M_BOOKS.PUBLICATION_STATUS)).isEqualTo(request.publicationStatus)
         }
 
         @Test
@@ -169,9 +207,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'title')].message").value("タイトルは必須です"))
         }
 
         @Test
@@ -193,9 +233,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'price')].message").value("価格は0以上で入力してください"))
         }
 
         @Test
@@ -217,9 +259,12 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者IDは必須です")))
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者は1人以上指定してください")))
         }
 
         @Test
@@ -241,9 +286,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'publicationStatus')].message").value("出版状況の値が不正です"))
         }
 
         @Test
@@ -265,9 +312,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'currencyCode')].message").value("通貨コードは3文字で入力してください"))
         }
 
         @Test
@@ -289,8 +338,8 @@ class BookControllerIT {
             )
                 .andExpect(status().isNotFound)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value("見つかりません"))
+                .andExpect(jsonPath("$.message").value("指定されたIDの著者が見つかりません"))
         }
 
         @Test
@@ -315,8 +364,8 @@ class BookControllerIT {
             )
                 .andExpect(status().isNotFound)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value("見つかりません"))
+                .andExpect(jsonPath("$.message").value("指定されたIDの著者が見つかりません"))
         }
 
     }
@@ -357,6 +406,14 @@ class BookControllerIT {
                     .content(objectMapper.writeValueAsString(updateRequest))
             )
                 .andExpect(status().isNoContent)
+
+            // 4. DB検証 - titleとauthorIdsで検索して更新データを確認
+            val updatedBook = findBookByTitleAndAuthorIds(updateRequest.title, updateRequest.authorIds)
+            assertThat(updatedBook).isNotNull
+            assertThat(updatedBook!!.get(M_BOOKS.TITLE)).isEqualTo(updateRequest.title)
+            assertThat(updatedBook.get(M_BOOKS.PRICE)).isEqualTo(updateRequest.price)
+            assertThat(updatedBook.get(M_BOOKS.CURRENCY_CODE)).isEqualTo(updateRequest.currencyCode)
+            assertThat(updatedBook.get(M_BOOKS.PUBLICATION_STATUS)).isEqualTo(updateRequest.publicationStatus)
         }
 
         @Test
@@ -390,6 +447,14 @@ class BookControllerIT {
                     .content(objectMapper.writeValueAsString(updateRequest))
             )
                 .andExpect(status().isNoContent)
+
+            // 4. DB検証 - titleとauthorIdsで検索して更新データを確認
+            val updatedBook = findBookByTitleAndAuthorIds(updateRequest.title, updateRequest.authorIds)
+            assertThat(updatedBook).isNotNull
+            assertThat(updatedBook!!.get(M_BOOKS.TITLE)).isEqualTo(updateRequest.title)
+            assertThat(updatedBook.get(M_BOOKS.PRICE)).isEqualTo(updateRequest.price)
+            assertThat(updatedBook.get(M_BOOKS.CURRENCY_CODE)).isEqualTo(updateRequest.currencyCode)
+            assertThat(updatedBook.get(M_BOOKS.PUBLICATION_STATUS)).isEqualTo(updateRequest.publicationStatus)
         }
 
         @Test
@@ -424,9 +489,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'title')].message").value("タイトルは必須です"))
         }
 
         @Test
@@ -461,9 +528,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'price')].message").value("価格は0以上で入力してください"))
         }
 
         @Test
@@ -498,9 +567,12 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者IDは必須です")))
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者は1人以上指定してください")))
         }
 
         @Test
@@ -535,9 +607,11 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.error").value("バリデーションエラー"))
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'currencyCode')].message").value("通貨コードは3文字で入力してください"))
         }
 
         @Test
@@ -633,8 +707,8 @@ class BookControllerIT {
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.error").exists())
+                .andExpect(jsonPath("$.error").value("不正なリクエスト"))
+                .andExpect(jsonPath("$.message").value("出版状況を出版済みから未出版に変更することはできません"))
         }
 
         @Test
@@ -729,7 +803,7 @@ class BookControllerIT {
                     "title": "更新されたタイトル",
                     "price": 2000.00,
                     "currencyCode": "USD",
-                    "publicationStatus": "PUBLISHED",
+                    "publicationStatus": "${PublicationStatus.PUBLISHED.code}",
                     "authorIds": [$authorId]
                 }
             """.trimIndent()
@@ -744,10 +818,11 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
-                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
                 .andExpect(jsonPath("$.validationErrors").exists())
                 .andExpect(jsonPath("$.validationErrors").isArray())
+                .andExpect(jsonPath("$.validationErrors[?(@.field == 'lockNo')].message").value("ロックナンバーは必須です"))
         }
 
-    } // UpdateBookTests終了
+    }
 }

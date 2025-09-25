@@ -64,7 +64,7 @@ class AuthorService(
                 id = id,
                 name = request.name.trim(),
                 birthDate = request.birthDate,
-                lockNo = request.lockNo,
+                lockNo = requireNotNull(request.lockNo), // バリデーションを通過したらnullではないはず
             )
 
         val updatedRows = authorRepository.update(updatedAuthor)
