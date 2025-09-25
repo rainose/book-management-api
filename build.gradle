@@ -23,7 +23,6 @@ plugins {
 ktlint {
     filter {
         exclude("**/src/main/generated/**")
-        exclude("**/com/bookmanageapp/jooq/**")
     }
 }
 
@@ -106,8 +105,6 @@ flyway {
 
 
 jooq {
-    version = '3.19.8'
-
     configuration {
         jdbc {
             driver = 'org.postgresql.Driver'
@@ -177,8 +174,3 @@ tasks.named('compileKotlin') {
 }
 
 sourceSets.main.java.srcDirs += 'src/main/generated'
-
-
-
-
-
