@@ -45,7 +45,7 @@ data class UpdateAuthorRequest(
     @JsonFormat(pattern = "yyyy-MM-dd")
     override val birthDate: LocalDate,
     @field:NotNull(message = "ロックナンバーは必須です")
-    val lockNo: Int,
+    val lockNo: Int?,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
     override val clientTimeZone: String,
 ) : BirthDateAware

@@ -1,22 +1,22 @@
 package com.bookmanageapp.bookmanagementapi.util
 
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import jakarta.validation.ConstraintValidatorContext
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(MockKExtension::class)
 class ValidPublicationStatusCodeValidatorTest {
 
+    @InjectMockKs
     private lateinit var validator: ValidPublicationStatusCodeValidator
-    private lateinit var context: ConstraintValidatorContext
 
-    @BeforeEach
-    fun setUp() {
-        validator = ValidPublicationStatusCodeValidator()
-        context = mock(ConstraintValidatorContext::class.java)
-    }
+    @MockK
+    private lateinit var context: ConstraintValidatorContext
 
     @Test
     fun `有効な出版ステータスコードの場合_trueが返される`() {
