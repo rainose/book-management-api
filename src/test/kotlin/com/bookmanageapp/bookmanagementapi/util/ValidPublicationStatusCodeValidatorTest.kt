@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class ValidPublicationStatusCodeValidatorTest {
-
     @InjectMockKs
     private lateinit var validator: ValidPublicationStatusCodeValidator
 

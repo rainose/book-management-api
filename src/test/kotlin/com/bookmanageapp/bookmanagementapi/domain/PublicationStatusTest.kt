@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class PublicationStatusTest {
-
     @Test
     fun `未出版から出版済みへの遷移は許可される`() {
         // Arrange

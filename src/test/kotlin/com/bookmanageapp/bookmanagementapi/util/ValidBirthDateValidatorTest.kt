@@ -18,7 +18,6 @@ import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
 class ValidBirthDateValidatorTest {
-
     @InjectMockKs
     private lateinit var validator: ValidBirthDateValidator
 
