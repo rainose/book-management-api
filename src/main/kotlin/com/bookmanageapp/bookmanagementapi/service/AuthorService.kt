@@ -37,7 +37,7 @@ class AuthorService(
         val author =
             NewAuthor(
                 name = request.name.trim(),
-                birthDate = request.birthDate,
+                birthDate = requireNotNull(request.birthDate),
             )
         val authorId = authorRepository.create(author)
         return requireNotNull(authorId)
@@ -63,8 +63,8 @@ class AuthorService(
             Author(
                 id = id,
                 name = request.name.trim(),
-                birthDate = request.birthDate,
-                lockNo = requireNotNull(request.lockNo), // バリデーションを通過したらnullではないはず
+                birthDate = requireNotNull(request.birthDate),
+                lockNo = requireNotNull(request.lockNo),
             )
 
         val updatedRows = authorRepository.update(updatedAuthor)

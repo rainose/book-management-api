@@ -32,6 +32,10 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAwa
         }
 
         val birthDate = request.birthDate
+        if (birthDate == null) {
+            // Let @NotNull handle null birthDate
+            return true
+        }
         val clientTimeZoneId =
             try {
                 ZoneId.of(request.clientTimeZone)
