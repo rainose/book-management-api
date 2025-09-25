@@ -1,16 +1,21 @@
 package com.bookmanageapp.bookmanagementapi.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
+import com.bookmanageapp.bookmanagementapi.domain.NewBook
+import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.dto.UpdateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.repository.AuthorRepository
 import com.bookmanageapp.bookmanagementapi.repository.BookRepository
-import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
-import com.bookmanageapp.bookmanagementapi.domain.NewBook
-import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
+import com.bookmanageapp.jooq.tables.MAuthors.Companion.M_AUTHORS
+import com.bookmanageapp.jooq.tables.MBooks.Companion.M_BOOKS
+import com.bookmanageapp.jooq.tables.TBookAuthors.Companion.T_BOOK_AUTHORS
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.Matchers.greaterThan
+import org.jooq.DSLContext
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
-import java.time.LocalDate
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -19,24 +24,19 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.springframework.test.context.jdbc.Sql
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.Matchers.hasItem
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.math.BigDecimal
-import org.jooq.DSLContext
-import com.bookmanageapp.jooq.tables.MAuthors.Companion.M_AUTHORS
-import com.bookmanageapp.jooq.tables.MBooks.Companion.M_BOOKS
-import com.bookmanageapp.jooq.tables.TBookAuthors.Companion.T_BOOK_AUTHORS
-import org.assertj.core.api.Assertions.assertThat
+import java.time.LocalDate
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,7 +44,6 @@ import org.assertj.core.api.Assertions.assertThat
 @ActiveProfiles("test-testcontainers")
 @Transactional
 class AuthorControllerIT {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -63,10 +62,11 @@ class AuthorControllerIT {
     companion object {
         @Container
         @JvmStatic
-        val postgreSQLContainer = PostgreSQLContainer("postgres:15")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpass")
+        val postgreSQLContainer =
+            PostgreSQLContainer("postgres:15")
+                .withDatabaseName("testdb")
+                .withUsername("testuser")
+                .withPassword("testpass")
 
         @DynamicPropertySource
         @JvmStatic
@@ -82,7 +82,10 @@ class AuthorControllerIT {
         // テスト用のセットアップは各テストメソッドの前に実行される
     }
 
-    private fun createTestAuthor(name: String, birthDate: LocalDate): Long {
+    private fun createTestAuthor(
+        name: String,
+        birthDate: LocalDate,
+    ): Long {
         val authorId = authorRepository.create(NewAuthor(name = name, birthDate = birthDate))
         return requireNotNull(authorId)
     }
@@ -92,15 +95,16 @@ class AuthorControllerIT {
         price: BigDecimal,
         currencyCode: String,
         publicationStatus: PublicationStatus,
-        authorIds: List<Long>
+        authorIds: List<Long>,
     ): Long {
-        val newBook = NewBook(
-            title = title,
-            price = price,
-            currencyCode = currencyCode,
-            publicationStatus = publicationStatus,
-            authorIds = authorIds
-        )
+        val newBook =
+            NewBook(
+                title = title,
+                price = price,
+                currencyCode = currencyCode,
+                publicationStatus = publicationStatus,
+                authorIds = authorIds,
+            )
         val bookId = bookRepository.create(newBook)
         return requireNotNull(bookId)
     }
@@ -122,21 +126,21 @@ class AuthorControllerIT {
 
     @Nested
     inner class CreateAuthorTests {
-
         @Test
         fun `正常なリクエストの場合_201ステータスと作成されたIDが返される`() {
             // 1. 準備 (Arrange)
-            val request = CreateAuthorRequest(
-                name = "テスト著者",
-                birthDate = LocalDate.of(1980, 1, 1),
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val request =
+                CreateAuthorRequest(
+                    name = "テスト著者",
+                    birthDate = LocalDate.of(1980, 1, 1),
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 post("/api/authors")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
+                    .content(objectMapper.writeValueAsString(request)),
             )
                 .andExpect(status().isCreated)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -144,10 +148,11 @@ class AuthorControllerIT {
                 .andExpect(jsonPath("$.id").value(greaterThan(0)))
 
             // 4. DB検証 - 登録データを確認
-            val createdAuthor = dslContext
-                .selectFrom(M_AUTHORS)
-                .where(M_AUTHORS.NAME.eq(request.name))
-                .fetchOne()
+            val createdAuthor =
+                dslContext
+                    .selectFrom(M_AUTHORS)
+                    .where(M_AUTHORS.NAME.eq(request.name))
+                    .fetchOne()
             assertThat(createdAuthor).isNotNull
             assertThat(createdAuthor!!.get(M_AUTHORS.NAME)).isEqualTo(request.name)
             assertThat(createdAuthor.get(M_AUTHORS.BIRTH_DATE)).isEqualTo(request.birthDate)
@@ -156,17 +161,19 @@ class AuthorControllerIT {
         @Test
         fun `名前が空文字の場合_400ステータスとバリデーションエラーが返される`() {
             // 1. 準備 (Arrange) - 無効なリクエスト（名前が空）
-            val invalidRequest = CreateAuthorRequest(
-                name = "", // 空の名前（バリデーションエラー）
-                birthDate = LocalDate.of(1980, 1, 1),
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val invalidRequest =
+                CreateAuthorRequest(
+                    // 空の名前（バリデーションエラー）
+                    name = "",
+                    birthDate = LocalDate.of(1980, 1, 1),
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 post("/api/authors")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -181,17 +188,18 @@ class AuthorControllerIT {
         fun `名前が256文字以上の場合_400ステータスとバリデーションエラーが返される`() {
             // 1. 準備 (Arrange) - 無効なリクエスト（名前が256文字）
             val longName = "a".repeat(256) // 256文字の名前（バリデーションエラー）
-            val invalidRequest = CreateAuthorRequest(
-                name = longName,
-                birthDate = LocalDate.of(1980, 1, 1),
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val invalidRequest =
+                CreateAuthorRequest(
+                    name = longName,
+                    birthDate = LocalDate.of(1980, 1, 1),
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 post("/api/authors")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -205,19 +213,20 @@ class AuthorControllerIT {
         @Test
         fun `生年月日がnullの場合_400ステータスとバリデーションエラーが返される`() {
             // 1. 準備 (Arrange) - 無効なリクエスト（生年月日がnull）
-            val invalidJson = """
+            val invalidJson =
+                """
                 {
                     "name": "テスト著者",
                     "birthDate": null,
                     "clientTimeZone": "Asia/Tokyo"
                 }
-            """.trimIndent()
+                """.trimIndent()
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 post("/api/authors")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(invalidJson)
+                    .content(invalidJson),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -232,17 +241,18 @@ class AuthorControllerIT {
         fun `生年月日が未来日付の場合_400ステータスとバリデーションエラーが返される`() {
             // 1. 準備 (Arrange) - 無効なリクエスト（生年月日が未来）
             val futureDate = LocalDate.now().plusDays(1) // 未来の日付（バリデーションエラー）
-            val invalidRequest = CreateAuthorRequest(
-                name = "テスト著者",
-                birthDate = futureDate,
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val invalidRequest =
+                CreateAuthorRequest(
+                    name = "テスト著者",
+                    birthDate = futureDate,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 post("/api/authors")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -256,17 +266,19 @@ class AuthorControllerIT {
         @Test
         fun `クライアントタイムゾーンが空の場合_400ステータスとバリデーションエラーが返される`() {
             // 1. 準備 (Arrange) - 無効なリクエスト（クライアントタイムゾーンが空）
-            val invalidRequest = CreateAuthorRequest(
-                name = "テスト著者",
-                birthDate = LocalDate.of(1980, 1, 1),
-                clientTimeZone = "" // 空のクライアントタイムゾーン（バリデーションエラー）
-            )
+            val invalidRequest =
+                CreateAuthorRequest(
+                    name = "テスト著者",
+                    birthDate = LocalDate.of(1980, 1, 1),
+                    // 空のクライアントタイムゾーン（バリデーションエラー）
+                    clientTimeZone = "",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 post("/api/authors")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -276,12 +288,10 @@ class AuthorControllerIT {
                 .andExpect(jsonPath("$.validationErrors").isArray())
                 .andExpect(jsonPath("$.validationErrors[?(@.field == 'clientTimeZone')].message").value("クライアントのタイムゾーンは必須です"))
         }
-
     }
 
     @Nested
     inner class UpdateAuthorTests {
-
         @Test
         fun `正常なリクエストの場合_204ステータスが返される`() {
             // 1. 準備 (Arrange)
@@ -289,18 +299,19 @@ class AuthorControllerIT {
             val createdAuthorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // 更新リクエストを準備
-            val updateRequest = UpdateAuthorRequest(
-                name = "更新されたテスト著者",
-                birthDate = LocalDate.of(1985, 5, 15),
-                lockNo = 1,
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val updateRequest =
+                UpdateAuthorRequest(
+                    name = "更新されたテスト著者",
+                    birthDate = LocalDate.of(1985, 5, 15),
+                    lockNo = 1,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateRequest))
+                    .content(objectMapper.writeValueAsString(updateRequest)),
             )
                 .andExpect(status().isNoContent)
 
@@ -317,18 +328,20 @@ class AuthorControllerIT {
             val createdAuthorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // 無効なリクエスト（名前が空）
-            val invalidRequest = UpdateAuthorRequest(
-                name = "", // 空の名前（バリデーションエラー）
-                birthDate = LocalDate.of(1985, 5, 15),
-                lockNo = 1,
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val invalidRequest =
+                UpdateAuthorRequest(
+                    // 空の名前（バリデーションエラー）
+                    name = "",
+                    birthDate = LocalDate.of(1985, 5, 15),
+                    lockNo = 1,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -346,18 +359,19 @@ class AuthorControllerIT {
 
             // 無効なリクエスト（名前が256文字）
             val longName = "a".repeat(256) // 256文字の名前（バリデーションエラー）
-            val invalidRequest = UpdateAuthorRequest(
-                name = longName,
-                birthDate = LocalDate.of(1985, 5, 15),
-                lockNo = 1,
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val invalidRequest =
+                UpdateAuthorRequest(
+                    name = longName,
+                    birthDate = LocalDate.of(1985, 5, 15),
+                    lockNo = 1,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -374,20 +388,21 @@ class AuthorControllerIT {
             val createdAuthorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // 無効なリクエスト（生年月日がnull）
-            val invalidJson = """
+            val invalidJson =
+                """
                 {
                     "name": "更新されたテスト著者",
                     "birthDate": null,
                     "lockNo": 1,
                     "clientTimeZone": "Asia/Tokyo"
                 }
-            """.trimIndent()
+                """.trimIndent()
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(invalidJson)
+                    .content(invalidJson),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -405,18 +420,19 @@ class AuthorControllerIT {
 
             // 無効なリクエスト（生年月日が未来）
             val futureDate = LocalDate.now().plusDays(1) // 未来の日付（バリデーションエラー）
-            val invalidRequest = UpdateAuthorRequest(
-                name = "更新されたテスト著者",
-                birthDate = futureDate,
-                lockNo = 1,
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val invalidRequest =
+                UpdateAuthorRequest(
+                    name = "更新されたテスト著者",
+                    birthDate = futureDate,
+                    lockNo = 1,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -433,18 +449,20 @@ class AuthorControllerIT {
             val createdAuthorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // 無効なリクエスト（クライアントタイムゾーンが空）
-            val invalidRequest = UpdateAuthorRequest(
-                name = "更新されたテスト著者",
-                birthDate = LocalDate.of(1985, 5, 15),
-                lockNo = 1,
-                clientTimeZone = "" // 空のクライアントタイムゾーン（バリデーションエラー）
-            )
+            val invalidRequest =
+                UpdateAuthorRequest(
+                    name = "更新されたテスト著者",
+                    birthDate = LocalDate.of(1985, 5, 15),
+                    lockNo = 1,
+                    // 空のクライアントタイムゾーン（バリデーションエラー）
+                    clientTimeZone = "",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidRequest))
+                    .content(objectMapper.writeValueAsString(invalidRequest)),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -458,18 +476,20 @@ class AuthorControllerIT {
         @Test
         fun `存在しない著者IDを指定した場合_404ステータスとエラーメッセージが返される`() {
             // 1. 準備 (Arrange)
-            val updateRequest = UpdateAuthorRequest(
-                name = "更新されたテスト著者",
-                birthDate = LocalDate.of(1985, 5, 15),
-                lockNo = 1,
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val updateRequest =
+                UpdateAuthorRequest(
+                    name = "更新されたテスト著者",
+                    birthDate = LocalDate.of(1985, 5, 15),
+                    lockNo = 1,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
-                put("/api/authors/{id}", 999L) // 存在しない著者ID
+                // 存在しない著者ID
+                put("/api/authors/{id}", 999L)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateRequest))
+                    .content(objectMapper.writeValueAsString(updateRequest)),
             )
                 .andExpect(status().isNotFound)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -483,19 +503,20 @@ class AuthorControllerIT {
             val createdAuthorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // lockNoフィールドを省略したJSONリクエスト
-            val invalidJson = """
+            val invalidJson =
+                """
                 {
                     "name": "更新されたテスト著者",
                     "birthDate": "1985-05-15",
                     "clientTimeZone": "Asia/Tokyo"
                 }
-            """.trimIndent()
+                """.trimIndent()
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(invalidJson)
+                    .content(invalidJson),
             )
                 .andExpect(status().isBadRequest)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -513,18 +534,20 @@ class AuthorControllerIT {
             val createdAuthorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // 間違ったlockNoで更新リクエスト
-            val updateRequest = UpdateAuthorRequest(
-                name = "更新されたテスト著者",
-                birthDate = LocalDate.of(1985, 5, 15),
-                lockNo = 999, // 間違ったlockNo（実際は1のはず）
-                clientTimeZone = "Asia/Tokyo"
-            )
+            val updateRequest =
+                UpdateAuthorRequest(
+                    name = "更新されたテスト著者",
+                    birthDate = LocalDate.of(1985, 5, 15),
+                    // 間違ったlockNo（実際は1のはず）
+                    lockNo = 999,
+                    clientTimeZone = "Asia/Tokyo",
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
                 put("/api/authors/{id}", createdAuthorId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(updateRequest))
+                    .content(objectMapper.writeValueAsString(updateRequest)),
             )
                 .andExpect(status().isConflict)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -532,12 +555,10 @@ class AuthorControllerIT {
                 .andExpect(jsonPath("$.error").value("競合"))
                 .andExpect(jsonPath("$.message").exists())
         }
-
     }
 
     @Nested
     inner class GetAuthorBooksTests {
-
         @Test
         fun `既存著者の書籍一覧取得で200とデータが返される`() {
             // 1. 準備 (Arrange)
@@ -545,24 +566,26 @@ class AuthorControllerIT {
             val authorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // テスト用の書籍を複数作成
-            val book1Id = createTestBook(
-                title = "テスト書籍1",
-                price = BigDecimal("1500.00"),
-                currencyCode = "JPY",
-                publicationStatus = PublicationStatus.PUBLISHED,
-                authorIds = listOf(authorId)
-            )
-            val book2Id = createTestBook(
-                title = "テスト書籍2",
-                price = BigDecimal("2000.00"),
-                currencyCode = "USD",
-                publicationStatus = PublicationStatus.UNPUBLISHED,
-                authorIds = listOf(authorId)
-            )
+            val book1Id =
+                createTestBook(
+                    title = "テスト書籍1",
+                    price = BigDecimal("1500.00"),
+                    currencyCode = "JPY",
+                    publicationStatus = PublicationStatus.PUBLISHED,
+                    authorIds = listOf(authorId),
+                )
+            val book2Id =
+                createTestBook(
+                    title = "テスト書籍2",
+                    price = BigDecimal("2000.00"),
+                    currencyCode = "USD",
+                    publicationStatus = PublicationStatus.UNPUBLISHED,
+                    authorIds = listOf(authorId),
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
-                get("/api/authors/{id}/books", authorId)
+                get("/api/authors/{id}/books", authorId),
             )
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -589,7 +612,7 @@ class AuthorControllerIT {
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
-                get("/api/authors/{id}/books", authorId)
+                get("/api/authors/{id}/books", authorId),
             )
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -608,7 +631,8 @@ class AuthorControllerIT {
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
-                get("/api/authors/{id}/books", 999L) // 存在しない著者ID
+                // 存在しない著者ID
+                get("/api/authors/{id}/books", 999L),
             )
                 .andExpect(status().isNotFound)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -624,26 +648,28 @@ class AuthorControllerIT {
             val author2Id = createTestAuthor("著者2", LocalDate.of(1985, 5, 15))
 
             // 共著の書籍を作成
-            val sharedBookId = createTestBook(
-                title = "共著書籍",
-                price = BigDecimal("3000.00"),
-                currencyCode = "JPY",
-                publicationStatus = PublicationStatus.PUBLISHED,
-                authorIds = listOf(author1Id, author2Id)
-            )
+            val sharedBookId =
+                createTestBook(
+                    title = "共著書籍",
+                    price = BigDecimal("3000.00"),
+                    currencyCode = "JPY",
+                    publicationStatus = PublicationStatus.PUBLISHED,
+                    authorIds = listOf(author1Id, author2Id),
+                )
 
             // 著者1のみの書籍も作成
-            val soloBookId = createTestBook(
-                title = "単独書籍",
-                price = BigDecimal("2500.00"),
-                currencyCode = "JPY",
-                publicationStatus = PublicationStatus.UNPUBLISHED,
-                authorIds = listOf(author1Id)
-            )
+            val soloBookId =
+                createTestBook(
+                    title = "単独書籍",
+                    price = BigDecimal("2500.00"),
+                    currencyCode = "JPY",
+                    publicationStatus = PublicationStatus.UNPUBLISHED,
+                    authorIds = listOf(author1Id),
+                )
 
             // 2. 実行 (Act) & 3. 検証 (Assert) - 著者1の書籍一覧取得
             mockMvc.perform(
-                get("/api/authors/{id}/books", author1Id)
+                get("/api/authors/{id}/books", author1Id),
             )
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -656,6 +682,5 @@ class AuthorControllerIT {
                 .andExpect(jsonPath("$.books[?(@.title == '共著書籍')].price").value(3000.00))
                 .andExpect(jsonPath("$.books[?(@.title == '単独書籍')].price").value(2500.00))
         }
-
     }
 }
