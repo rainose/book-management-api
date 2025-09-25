@@ -33,7 +33,7 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAwa
 
         val birthDate = request.birthDate
         if (birthDate == null) {
-            // Let @NotNull handle null birthDate
+            // nullの場合は@NotNullに適切なエラーメッセージ表示を委ね、このvalidatorはパスする
             return true
         }
         val clientTimeZoneId =

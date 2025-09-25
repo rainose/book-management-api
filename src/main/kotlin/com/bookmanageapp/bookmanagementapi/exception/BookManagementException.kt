@@ -33,18 +33,6 @@ class InvalidRequestException(
 ) : BookManagementException(message)
 
 /**
- * データベース操作中にエラーが発生した場合にスローされる例外。
- *
- * @param message 例外メッセージ
- * @param cause 原因となった例外
- * @author nose yudai
- */
-class DatabaseException(
-    message: String,
-    cause: Throwable? = null,
-) : BookManagementException(message, cause)
-
-/**
  * 楽観的ロックに失敗した場合にスローされる例外。
  *
  * @param message 例外メッセージ
