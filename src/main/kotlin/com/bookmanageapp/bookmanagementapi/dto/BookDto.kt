@@ -79,7 +79,7 @@ data class UpdateBookRequest(
 )
 
 /**
- * 書籍のサマリー情報のレスポンス用データ転送オブジェクト(DTO)。
+ * 書籍のレスポンス用データ転送オブジェクト(DTO)。
  *
  * @property id 書籍ID
  * @property title 書籍のタイトル
@@ -88,7 +88,7 @@ data class UpdateBookRequest(
  * @property publicationStatus 出版ステータス
  * @author nose yudai
  */
-data class BookSummaryResponse(
+data class BookResponse(
     val id: Long,
     val title: String,
     val price: BigDecimal,
