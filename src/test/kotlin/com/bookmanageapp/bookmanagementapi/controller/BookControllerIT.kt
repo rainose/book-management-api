@@ -14,7 +14,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.hasItem
 import org.jooq.DSLContext
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -74,12 +73,6 @@ class BookControllerIT {
             registry.add("spring.datasource.username", postgreSQLContainer::getUsername)
             registry.add("spring.datasource.password", postgreSQLContainer::getPassword)
         }
-    }
-
-    @BeforeEach
-    fun setUp() {
-        // テスト用の著者データを事前に挿入
-        // このセットアップは各テストメソッドの前に実行される
     }
 
     private fun createTestAuthor(
