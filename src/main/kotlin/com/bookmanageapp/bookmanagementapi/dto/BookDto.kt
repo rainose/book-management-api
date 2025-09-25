@@ -66,7 +66,8 @@ data class UpdateBookRequest(
     @field:Size(min = 3, max = 3, message = "通貨コードは3文字で入力してください")
     val currencyCode: String,
     @field:NotNull(message = "出版ステータスは必須です")
-    val publicationStatus: PublicationStatus,
+    @field:ValidPublicationStatusCode
+    val publicationStatus: String,
     @field:NotEmpty(message = "著者IDは必須です")
     @field:Size(min = 1, message = "著者は1人以上指定してください")
     val authorIds: List<
