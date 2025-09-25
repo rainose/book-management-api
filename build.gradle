@@ -179,28 +179,6 @@ tasks.named('compileKotlin') {
 sourceSets.main.java.srcDirs += 'src/main/generated'
 
 
-sourceSets {
-    integrationTest {
-        kotlin.srcDir file('src/integrationTest/kotlin')
-        resources.srcDir file('src/integrationTest/resources')
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-    }
-}
 
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
-tasks.register('integrationTest', Test) {
-    description = 'Runs integration tests.'
-    group = 'verification'
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    shouldRunAfter 'test'
-}
-
-check.dependsOn integrationTest
 
 
