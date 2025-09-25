@@ -117,28 +117,6 @@ class GlobalExceptionHandler {
     }
 
     /**
-     * [DatabaseException]をハンドリングし、500 Internal Server Errorレスポンスを返します。
-     *
-     * @param ex 発生した例外
-     * @param request 現在のリクエスト
-     * @return エラーレスポンス
-     */
-    @ExceptionHandler(DatabaseException::class)
-    fun handleDatabaseException(
-        ex: DatabaseException,
-        request: WebRequest,
-    ): ResponseEntity<ErrorResponse> {
-        val errorResponse =
-            ErrorResponse(
-                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                error = "データベースエラー",
-                message = ex.message ?: "データベース操作に失敗しました",
-                path = getPath(request),
-            )
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
-    }
-
-    /**
      * [SQLException]をハンドリングし、500 Internal Server Errorレスポンスを返します。
      *
      * @param ex 発生した例外

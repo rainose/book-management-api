@@ -85,7 +85,8 @@ class BookService(
     ) {
         val currentBook = bookRepository.findById(id) ?: throw NotFoundException("指定されたIDの書籍が見つかりません")
 
-        if (!currentBook.publicationStatus.canTransitionTo(request.publicationStatus)) {
+        val updatePublicationStatus: PublicationStatus = PublicationStatus.fromCode(request.publicationStatus)
+        if (!currentBook.canUpdatePublicationStatus(updatePublicationStatus)) {
             throw InvalidRequestException(
                 "出版状況を出版済みから未出版に変更することはできません",
             )
@@ -105,9 +106,10 @@ class BookService(
                 title = request.title.trim(),
                 price = request.price,
                 currencyCode = request.currencyCode,
-                publicationStatus = request.publicationStatus,
+                publicationStatus = updatePublicationStatus,
                 authorIds = uniqueAuthorIds,
-                lockNo = request.lockNo,
+                // バリデーションを通過したらnullではないはず
+                lockNo = requireNotNull(request.lockNo),
             )
 
         val updatedRows = bookRepository.update(updatedBook)

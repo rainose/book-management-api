@@ -4,7 +4,7 @@ import com.bookmanageapp.bookmanagementapi.domain.Author
 import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 import com.bookmanageapp.bookmanagementapi.dto.AuthorBooksResponse
 import com.bookmanageapp.bookmanagementapi.dto.AuthorResponse
-import com.bookmanageapp.bookmanagementapi.dto.BookSummaryResponse
+import com.bookmanageapp.bookmanagementapi.dto.BookResponse
 import com.bookmanageapp.bookmanagementapi.dto.CreateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.dto.UpdateAuthorRequest
 import com.bookmanageapp.bookmanagementapi.exception.NotFoundException
@@ -37,7 +37,7 @@ class AuthorService(
         val author =
             NewAuthor(
                 name = request.name.trim(),
-                birthDate = request.birthDate,
+                birthDate = requireNotNull(request.birthDate),
             )
         val authorId = authorRepository.create(author)
         return requireNotNull(authorId)
@@ -63,8 +63,8 @@ class AuthorService(
             Author(
                 id = id,
                 name = request.name.trim(),
-                birthDate = request.birthDate,
-                lockNo = request.lockNo,
+                birthDate = requireNotNull(request.birthDate),
+                lockNo = requireNotNull(request.lockNo),
             )
 
         val updatedRows = authorRepository.update(updatedAuthor)
@@ -100,7 +100,7 @@ class AuthorService(
 
         val bookSummaryResponses =
             books.map { book ->
-                BookSummaryResponse(
+                BookResponse(
                     id = requireNotNull(book.id),
                     title = book.title,
                     price = book.price,

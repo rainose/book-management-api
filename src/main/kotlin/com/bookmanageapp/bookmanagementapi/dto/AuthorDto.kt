@@ -22,7 +22,7 @@ data class CreateAuthorRequest(
     val name: String,
     @field:NotNull(message = "生年月日は必須です")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    override val birthDate: LocalDate,
+    override val birthDate: LocalDate?,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
     override val clientTimeZone: String,
 ) : BirthDateAware
@@ -43,9 +43,9 @@ data class UpdateAuthorRequest(
     val name: String,
     @field:NotNull(message = "生年月日は必須です")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    override val birthDate: LocalDate,
+    override val birthDate: LocalDate?,
     @field:NotNull(message = "ロックナンバーは必須です")
-    val lockNo: Int,
+    val lockNo: Int?,
     @field:NotBlank(message = "クライアントのタイムゾーンは必須です")
     override val clientTimeZone: String,
 ) : BirthDateAware
@@ -66,21 +66,6 @@ data class AuthorResponse(
 )
 
 /**
- * 著者のサマリー情報のレスポンス用データ転送オブジェクト(DTO)。
- *
- * @property id 著者ID
- * @property name 著者名
- * @property birthDate 生年月日
- * @author nose yudai
- */
-data class AuthorSummaryResponse(
-    val id: Long,
-    val name: String,
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    val birthDate: LocalDate,
-)
-
-/**
  * 著者とその書籍リストのレスポンス用データ転送オブジェクト(DTO)。
  *
  * @property author 著者情報
@@ -89,5 +74,5 @@ data class AuthorSummaryResponse(
  */
 data class AuthorBooksResponse(
     val author: AuthorResponse,
-    val books: List<BookSummaryResponse>,
+    val books: List<BookResponse>,
 )

@@ -66,7 +66,8 @@ data class UpdateBookRequest(
     @field:Size(min = 3, max = 3, message = "通貨コードは3文字で入力してください")
     val currencyCode: String,
     @field:NotNull(message = "出版ステータスは必須です")
-    val publicationStatus: PublicationStatus,
+    @field:ValidPublicationStatusCode
+    val publicationStatus: String,
     @field:NotEmpty(message = "著者IDは必須です")
     @field:Size(min = 1, message = "著者は1人以上指定してください")
     val authorIds: List<
@@ -74,11 +75,11 @@ data class UpdateBookRequest(
         Long,
         >,
     @field:NotNull(message = "ロックナンバーは必須です")
-    val lockNo: Int,
+    val lockNo: Int?,
 )
 
 /**
- * 書籍のサマリー情報のレスポンス用データ転送オブジェクト(DTO)。
+ * 書籍のレスポンス用データ転送オブジェクト(DTO)。
  *
  * @property id 書籍ID
  * @property title 書籍のタイトル
@@ -87,7 +88,7 @@ data class UpdateBookRequest(
  * @property publicationStatus 出版ステータス
  * @author nose yudai
  */
-data class BookSummaryResponse(
+data class BookResponse(
     val id: Long,
     val title: String,
     val price: BigDecimal,
