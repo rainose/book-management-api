@@ -4,8 +4,8 @@ import com.bookmanageapp.bookmanagementapi.domain.Author
 import com.bookmanageapp.bookmanagementapi.domain.NewAuthor
 import com.bookmanageapp.jooq.tables.MAuthors.Companion.M_AUTHORS
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
 
 /**
  * [AuthorRepository] のjOOQを使用した実装クラス。
@@ -63,16 +63,15 @@ class AuthorRepositoryImpl(
      * {@inheritDoc}
      */
     override fun create(author: NewAuthor): Long {
-        val now = LocalDateTime.now()
         val authorId =
             dslContext
                 .insertInto(M_AUTHORS)
                 .set(M_AUTHORS.NAME, author.name)
                 .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
                 .set(M_AUTHORS.LOCK_NO, author.lockNo)
-                .set(M_AUTHORS.CREATED_AT, now)
+                .set(M_AUTHORS.CREATED_AT, DSL.currentLocalDateTime())
                 .set(M_AUTHORS.CREATED_BY, "api_executer")
-                .set(M_AUTHORS.UPDATED_AT, now)
+                .set(M_AUTHORS.UPDATED_AT, DSL.currentLocalDateTime())
                 .set(M_AUTHORS.UPDATED_BY, "api_executer")
                 .returningResult(M_AUTHORS.ID)
                 .fetchOne()
@@ -84,13 +83,12 @@ class AuthorRepositoryImpl(
      * {@inheritDoc}
      */
     override fun update(author: Author): Int {
-        val now = LocalDateTime.now()
         return dslContext
             .update(M_AUTHORS)
             .set(M_AUTHORS.NAME, author.name)
             .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
             .set(M_AUTHORS.LOCK_NO, author.lockNo + 1)
-            .set(M_AUTHORS.UPDATED_AT, now)
+            .set(M_AUTHORS.UPDATED_AT, DSL.currentLocalDateTime())
             .set(M_AUTHORS.UPDATED_BY, "api_executer")
             .where(
                 M_AUTHORS.ID.eq(author.id)

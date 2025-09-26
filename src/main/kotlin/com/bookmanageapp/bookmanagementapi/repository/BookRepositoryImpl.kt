@@ -6,8 +6,8 @@ import com.bookmanageapp.bookmanagementapi.domain.PublicationStatus
 import com.bookmanageapp.jooq.tables.MBooks.Companion.M_BOOKS
 import com.bookmanageapp.jooq.tables.TBookAuthors.Companion.T_BOOK_AUTHORS
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
 
 /**
  * [BookRepository]のjOOQを使用した実装クラス。
@@ -23,8 +23,6 @@ class BookRepositoryImpl(
      * {@inheritDoc}
      */
     override fun create(book: NewBook): Long {
-        val now = LocalDateTime.now()
-
         return dslContext.transactionResult { configuration ->
             val transactionDsl = configuration.dsl()
 
@@ -37,9 +35,9 @@ class BookRepositoryImpl(
                     .set(M_BOOKS.CURRENCY_CODE, book.currencyCode)
                     .set(M_BOOKS.PUBLICATION_STATUS, book.publicationStatus.code)
                     .set(M_BOOKS.LOCK_NO, book.lockNo)
-                    .set(M_BOOKS.CREATED_AT, now)
+                    .set(M_BOOKS.CREATED_AT, DSL.currentLocalDateTime())
                     .set(M_BOOKS.CREATED_BY, "api_executer")
-                    .set(M_BOOKS.UPDATED_AT, now)
+                    .set(M_BOOKS.UPDATED_AT, DSL.currentLocalDateTime())
                     .set(M_BOOKS.UPDATED_BY, "api_executer")
                     .returningResult(M_BOOKS.ID)
                     .fetchOne()
@@ -87,8 +85,6 @@ class BookRepositoryImpl(
      * {@inheritDoc}
      */
     override fun update(book: Book): Int {
-        val now = LocalDateTime.now()
-
         return dslContext.transactionResult { configuration ->
             val transactionDsl = configuration.dsl()
 
@@ -101,7 +97,7 @@ class BookRepositoryImpl(
                     .set(M_BOOKS.CURRENCY_CODE, book.currencyCode)
                     .set(M_BOOKS.PUBLICATION_STATUS, book.publicationStatus.code)
                     .set(M_BOOKS.LOCK_NO, book.lockNo + 1)
-                    .set(M_BOOKS.UPDATED_AT, now)
+                    .set(M_BOOKS.UPDATED_AT, DSL.currentLocalDateTime())
                     .set(M_BOOKS.UPDATED_BY, "api_executer")
                     .where(
                         M_BOOKS.ID.eq(book.id)
