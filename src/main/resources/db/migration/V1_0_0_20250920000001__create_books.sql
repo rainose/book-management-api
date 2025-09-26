@@ -17,7 +17,7 @@ COMMENT ON COLUMN m_books.id IS '書籍ID（自動採番）';
 COMMENT ON COLUMN m_books.title IS '書籍タイトル';
 COMMENT ON COLUMN m_books.price IS '価格（0以上）';
 COMMENT ON COLUMN m_books.currency_code IS '通貨コード（ISO 4217形式）';
-COMMENT ON COLUMN m_books.publication_status IS '出版状態（UP:未出版, PB:出版済）';
+COMMENT ON COLUMN m_books.publication_status IS '出版状態（00:未出版, 01:出版済）';
 COMMENT ON COLUMN m_books.lock_no IS '楽観的排他制御用バージョン番号';
 COMMENT ON COLUMN m_books.created_at IS '作成日時';
 COMMENT ON COLUMN m_books.created_by IS '作成者';
