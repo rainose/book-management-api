@@ -66,7 +66,7 @@ src/
   - title: 書籍タイトル
   - price: 価格（0以上）
   - currency_code: 通貨コード（ISO 4217形式）
-  - publication_status: 出版状態（UP:未出版, PB:出版済）
+  - publication_status: 出版状態（00:未出版, 01:出版済）
   - lock_no: 楽観的排他制御用バージョン番号
   - created_at: 作成日時
   - created_by: 作成者
