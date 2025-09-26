@@ -308,10 +308,11 @@ class AuthorControllerIT {
                 .andExpect(status().isNoContent)
 
             // 4. DB検証 - 更新データを確認
-            val updatedAuthor = findAuthorById(createdAuthorId)
-            assertThat(updatedAuthor).isNotNull
-            assertThat(updatedAuthor!!.get(M_AUTHORS.NAME)).isEqualTo(updateRequest.name)
+            val updatedAuthor = requireNotNull(findAuthorById(createdAuthorId))
+            assertThat(updatedAuthor.get(M_AUTHORS.ID)).isEqualTo(createdAuthorId)
+            assertThat(updatedAuthor.get(M_AUTHORS.NAME)).isEqualTo(updateRequest.name)
             assertThat(updatedAuthor.get(M_AUTHORS.BIRTH_DATE)).isEqualTo(updateRequest.birthDate)
+            assertThat(updatedAuthor.get(M_AUTHORS.LOCK_NO)).isEqualTo(2)
         }
 
         @Test
@@ -558,16 +559,14 @@ class AuthorControllerIT {
             val authorId = createTestAuthor("テスト著者", LocalDate.of(1980, 1, 1))
 
             // テスト用の書籍を複数作成
-            val book1Id =
-                createTestBook(
+            createTestBook(
                     title = "テスト書籍1",
                     price = BigDecimal("1500.00"),
                     currencyCode = "JPY",
                     publicationStatus = PublicationStatus.PUBLISHED,
                     authorIds = listOf(authorId),
                 )
-            val book2Id =
-                createTestBook(
+            createTestBook(
                     title = "テスト書籍2",
                     price = BigDecimal("2000.00"),
                     currencyCode = "USD",
@@ -640,8 +639,7 @@ class AuthorControllerIT {
             val author2Id = createTestAuthor("著者2", LocalDate.of(1985, 5, 15))
 
             // 共著の書籍を作成
-            val sharedBookId =
-                createTestBook(
+            createTestBook(
                     title = "共著書籍",
                     price = BigDecimal("3000.00"),
                     currencyCode = "JPY",
@@ -650,8 +648,7 @@ class AuthorControllerIT {
                 )
 
             // 著者1のみの書籍も作成
-            val soloBookId =
-                createTestBook(
+            createTestBook(
                     title = "単独書籍",
                     price = BigDecimal("2500.00"),
                     currencyCode = "JPY",

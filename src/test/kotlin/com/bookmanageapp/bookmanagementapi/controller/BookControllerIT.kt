@@ -113,6 +113,11 @@ class BookControllerIT {
         .having(org.jooq.impl.DSL.count().eq(authorIds.size))
         .fetchOne()
 
+    private fun findBookAuthorRelations(bookId: Long) = dslContext
+        .selectFrom(T_BOOK_AUTHORS)
+        .where(T_BOOK_AUTHORS.BOOK_ID.eq(bookId))
+        .fetch()
+
     @Nested
     inner class CreateBookTests {
         @Test
@@ -421,12 +426,17 @@ class BookControllerIT {
                 .andExpect(status().isNoContent)
 
             // 4. DB検証 - titleとauthorIdsで検索して更新データを確認
-            val updatedBook = findBookByTitleAndAuthorIds(updateRequest.title, updateRequest.authorIds)
-            assertThat(updatedBook).isNotNull
-            assertThat(updatedBook!!.get(M_BOOKS.TITLE)).isEqualTo(updateRequest.title)
+            val updatedBook = requireNotNull(findBookByTitleAndAuthorIds(updateRequest.title, updateRequest.authorIds))
+            assertThat(updatedBook.get(M_BOOKS.ID)).isEqualTo(createdBookId)
+            assertThat(updatedBook.get(M_BOOKS.TITLE)).isEqualTo(updateRequest.title)
             assertThat(updatedBook.get(M_BOOKS.PRICE)).isEqualTo(updateRequest.price)
             assertThat(updatedBook.get(M_BOOKS.CURRENCY_CODE)).isEqualTo(updateRequest.currencyCode)
             assertThat(updatedBook.get(M_BOOKS.PUBLICATION_STATUS)).isEqualTo(updateRequest.publicationStatus)
+            assertThat(updatedBook.get(M_BOOKS.LOCK_NO)).isEqualTo(2)
+
+            val bookAuthorRelations = findBookAuthorRelations(createdBookId)
+            assertThat(bookAuthorRelations).hasSize(1)
+            assertThat(bookAuthorRelations[0].get(T_BOOK_AUTHORS.AUTHOR_ID)).isEqualTo(author1Id)
         }
 
         @Test
@@ -464,12 +474,17 @@ class BookControllerIT {
                 .andExpect(status().isNoContent)
 
             // 4. DB検証 - titleとauthorIdsで検索して更新データを確認
-            val updatedBook = findBookByTitleAndAuthorIds(updateRequest.title, updateRequest.authorIds)
-            assertThat(updatedBook).isNotNull
-            assertThat(updatedBook!!.get(M_BOOKS.TITLE)).isEqualTo(updateRequest.title)
+            val updatedBook = requireNotNull(findBookByTitleAndAuthorIds(updateRequest.title, updateRequest.authorIds))
+            assertThat(updatedBook.get(M_BOOKS.ID)).isEqualTo(createdBookId)
+            assertThat(updatedBook.get(M_BOOKS.TITLE)).isEqualTo(updateRequest.title)
             assertThat(updatedBook.get(M_BOOKS.PRICE)).isEqualTo(updateRequest.price)
             assertThat(updatedBook.get(M_BOOKS.CURRENCY_CODE)).isEqualTo(updateRequest.currencyCode)
             assertThat(updatedBook.get(M_BOOKS.PUBLICATION_STATUS)).isEqualTo(updateRequest.publicationStatus)
+            assertThat(updatedBook.get(M_BOOKS.LOCK_NO)).isEqualTo(2)
+
+            val bookAuthorRelations = findBookAuthorRelations(createdBookId)
+            assertThat(bookAuthorRelations).hasSize(1)
+            assertThat(bookAuthorRelations[0].get(T_BOOK_AUTHORS.AUTHOR_ID)).isEqualTo(authorId)
         }
 
         @Test
