@@ -1,6 +1,7 @@
 package com.bookmanageapp.bookmanagementapi.util
 
 import com.bookmanageapp.bookmanagementapi.dto.BirthDateAware
+import com.bookmanageapp.bookmanagementapi.repository.TimeProvider
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -14,12 +15,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
-import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
 class ValidBirthDateValidatorTest {
     @InjectMockKs
     private lateinit var validator: ValidBirthDateValidator
+
+    @MockK
+    private lateinit var timeProvider: TimeProvider
 
     @MockK
     private lateinit var context: ConstraintValidatorContext
@@ -48,8 +51,9 @@ class ValidBirthDateValidatorTest {
     fun `生年月日が今日の場合_trueが返される`() {
         // Arrange
         val clientTimeZone = "Asia/Tokyo"
-        val today = LocalDate.now(ZoneId.of(clientTimeZone))
+        val today = LocalDate.of(2023, 12, 1)
         val request = TestBirthDateAware(birthDate = today, clientTimeZone = clientTimeZone)
+        every { timeProvider.getCurrentDate(clientTimeZone) } returns today
 
         // Act
         val result = validator.isValid(request, context)
@@ -63,8 +67,10 @@ class ValidBirthDateValidatorTest {
     fun `生年月日が過去の場合_trueが返される`() {
         // Arrange
         val clientTimeZone = "Asia/Tokyo"
-        val yesterday = LocalDate.now(ZoneId.of(clientTimeZone)).minusDays(1)
+        val today = LocalDate.of(2023, 12, 1)
+        val yesterday = today.minusDays(1)
         val request = TestBirthDateAware(birthDate = yesterday, clientTimeZone = clientTimeZone)
+        every { timeProvider.getCurrentDate(clientTimeZone) } returns today
 
         // Act
         val result = validator.isValid(request, context)
@@ -78,8 +84,10 @@ class ValidBirthDateValidatorTest {
     fun `生年月日が未来の場合_falseが返されエラーメッセージが設定される`() {
         // Arrange
         val clientTimeZone = "Asia/Tokyo"
-        val tomorrow = LocalDate.now(ZoneId.of(clientTimeZone)).plusDays(1)
+        val today = LocalDate.of(2023, 12, 1)
+        val tomorrow = today.plusDays(1)
         val request = TestBirthDateAware(birthDate = tomorrow, clientTimeZone = clientTimeZone)
+        every { timeProvider.getCurrentDate(clientTimeZone) } returns today
         every { context.defaultConstraintMessageTemplate } returns "some error message"
 
         // Act
@@ -96,7 +104,7 @@ class ValidBirthDateValidatorTest {
     @Test
     fun `タイムゾーンが無効な場合_falseが返されエラーメッセージが設定される`() {
         // Arrange
-        val request = TestBirthDateAware(birthDate = LocalDate.now(), clientTimeZone = "Invalid/Zone")
+        val request = TestBirthDateAware(birthDate = LocalDate.of(2023, 1, 1), clientTimeZone = "Invalid/Zone")
 
         // Act
         val result = validator.isValid(request, context)
@@ -125,7 +133,7 @@ class ValidBirthDateValidatorTest {
     @Test
     fun `タイムゾーンが空文字の場合_trueが返される`() {
         // Arrange
-        val request = TestBirthDateAware(birthDate = LocalDate.now(), clientTimeZone = "")
+        val request = TestBirthDateAware(birthDate = LocalDate.of(2023, 1, 1), clientTimeZone = "")
 
         // Act
         val result = validator.isValid(request, context)
