@@ -207,8 +207,6 @@ docker-compose up -d
 
 - [API仕様書](DOCS/API_SPECIFICATION.md) - REST APIの詳細仕様
 - [バリデーションルール詳細](DOCS/VALIDATION_RULES.md) - 入力検証の詳細ルール
-- [実装計画書](DOCS/07_IMPLEMENTATION_PLAN.md) - 段階的な実装計画
-- [テスト戦略書](DOCS/06_TEST_STRATEGY.md) - TDDテスト戦略
 
 ## 主要な実装特徴
 
@@ -220,9 +218,8 @@ docker-compose up -d
 
 ### ドメインオブジェクト
 
-- **NewBook/Book**: 新規作成用と永続化済み用でドメインオブジェクトを分離
+- **NewBook/Book, NewAuthor/Author**: 新規作成用と永続化済み用でドメインオブジェクトを分離
 - **PublicationStatus**: 出版ステータスの状態遷移を管理
-- **バリデーション**: DTOレベルでの入力検証
 
 ### データアクセス
 
