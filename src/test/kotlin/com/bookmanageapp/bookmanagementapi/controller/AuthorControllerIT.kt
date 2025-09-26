@@ -551,19 +551,19 @@ class AuthorControllerIT {
 
             // テスト用の書籍を複数作成
             createTestBook(
-                    title = "テスト書籍1",
-                    price = BigDecimal("1500.00"),
-                    currencyCode = "JPY",
-                    publicationStatus = PublicationStatus.PUBLISHED,
-                    authorIds = listOf(authorId),
-                )
+                title = "テスト書籍1",
+                price = BigDecimal("1500.00"),
+                currencyCode = "JPY",
+                publicationStatus = PublicationStatus.PUBLISHED,
+                authorIds = listOf(authorId),
+            )
             createTestBook(
-                    title = "テスト書籍2",
-                    price = BigDecimal("2000.00"),
-                    currencyCode = "USD",
-                    publicationStatus = PublicationStatus.UNPUBLISHED,
-                    authorIds = listOf(authorId),
-                )
+                title = "テスト書籍2",
+                price = BigDecimal("2000.00"),
+                currencyCode = "USD",
+                publicationStatus = PublicationStatus.UNPUBLISHED,
+                authorIds = listOf(authorId),
+            )
 
             // 2. 実行 (Act) & 3. 検証 (Assert)
             mockMvc.perform(
@@ -631,21 +631,21 @@ class AuthorControllerIT {
 
             // 共著の書籍を作成
             createTestBook(
-                    title = "共著書籍",
-                    price = BigDecimal("3000.00"),
-                    currencyCode = "JPY",
-                    publicationStatus = PublicationStatus.PUBLISHED,
-                    authorIds = listOf(author1Id, author2Id),
-                )
+                title = "共著書籍",
+                price = BigDecimal("3000.00"),
+                currencyCode = "JPY",
+                publicationStatus = PublicationStatus.PUBLISHED,
+                authorIds = listOf(author1Id, author2Id),
+            )
 
             // 著者1のみの書籍も作成
             createTestBook(
-                    title = "単独書籍",
-                    price = BigDecimal("2500.00"),
-                    currencyCode = "JPY",
-                    publicationStatus = PublicationStatus.UNPUBLISHED,
-                    authorIds = listOf(author1Id),
-                )
+                title = "単独書籍",
+                price = BigDecimal("2500.00"),
+                currencyCode = "JPY",
+                publicationStatus = PublicationStatus.UNPUBLISHED,
+                authorIds = listOf(author1Id),
+            )
 
             // 2. 実行 (Act) & 3. 検証 (Assert) - 著者1の書籍一覧取得
             mockMvc.perform(

@@ -113,10 +113,11 @@ class BookControllerIT {
         .having(org.jooq.impl.DSL.count().eq(authorIds.size))
         .fetchOne()
 
-    private fun findBookAuthorRelations(bookId: Long) = dslContext
-        .selectFrom(T_BOOK_AUTHORS)
-        .where(T_BOOK_AUTHORS.BOOK_ID.eq(bookId))
-        .fetch()
+    private fun findBookAuthorRelations(bookId: Long) =
+        dslContext
+            .selectFrom(T_BOOK_AUTHORS)
+            .where(T_BOOK_AUTHORS.BOOK_ID.eq(bookId))
+            .fetch()
 
     @Nested
     inner class CreateBookTests {
