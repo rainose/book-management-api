@@ -97,7 +97,7 @@ class AuthorService(
                 birthDate = author.birthDate,
             )
 
-        val bookSummaryResponses =
+        val bookResponses =
             books.map { book ->
                 BookResponse(
                     id = book.id,
@@ -110,7 +110,7 @@ class AuthorService(
 
         return AuthorBooksResponse(
             author = authorResponse,
-            books = bookSummaryResponses,
+            books = bookResponses,
         )
     }
 }

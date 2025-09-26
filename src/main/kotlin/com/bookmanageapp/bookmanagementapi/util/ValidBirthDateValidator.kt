@@ -48,7 +48,7 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAwa
 
         val clientLocalDate = timeProvider.getCurrentDate(request.clientTimeZone)
 
-        // birthDate <= clientLocalDate
+        // 日付チェック
         if (requireNotNull(request.birthDate).isAfter(clientLocalDate)) {
             context?.disableDefaultConstraintViolation()
             context?.buildConstraintViolationWithTemplate(

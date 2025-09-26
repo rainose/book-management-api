@@ -34,7 +34,7 @@ class BookService(
      * @throws NotFoundException 指定された著者IDが存在しない場合
      */
     fun createBook(request: CreateBookRequest): Long {
-        // 重複を除去
+        // クライアント側のミスで重複したIDが送られてきてもエラーにせず内部的に重複を除去
         val uniqueAuthorIds = request.authorIds.distinct()
 
         // 著者の存在確認
@@ -107,7 +107,6 @@ class BookService(
                 currencyCode = request.currencyCode,
                 publicationStatus = updatePublicationStatus,
                 authorIds = uniqueAuthorIds,
-                // バリデーションを通過したらnullではないはず
                 lockNo = requireNotNull(request.lockNo),
             )
 
