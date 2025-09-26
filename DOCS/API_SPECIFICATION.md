@@ -225,7 +225,7 @@
   "error": "バリデーションエラー",
   "message": "リクエストのバリデーションに失敗しました",
   "path": "/api/books",
-  "validationErrors": [
+  "validation_errors": [
     {
       "field": "title",
       "rejectedValue": "",

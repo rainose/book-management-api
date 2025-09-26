@@ -5,6 +5,7 @@ import com.bookmanageapp.bookmanagementapi.dto.FieldError
 import com.bookmanageapp.bookmanagementapi.dto.ValidationErrorResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -90,6 +91,28 @@ class GlobalExceptionHandler {
                 message = "リクエストのバリデーションに失敗しました",
                 path = getPath(request),
                 validationErrors = fieldErrors,
+            )
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+
+    /**
+     * [HttpMessageNotReadableException]をハンドリングし、400 Bad Requestレスポンスを返します。
+     *
+     * @param ex 発生した例外
+     * @param request 現在のリクエスト
+     * @return エラーレスポンス
+     */
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadableException(
+        ex: HttpMessageNotReadableException,
+        request: WebRequest,
+    ): ResponseEntity<ErrorResponse> {
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = "バリデーションエラー",
+                message = "リクエストのバリデーションに失敗しました",
+                path = getPath(request),
             )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }

@@ -75,7 +75,7 @@ data class UpdateBookRequest(
         Long,
         >,
     @field:NotNull(message = "ロックナンバーは必須です")
-    val lockNo: Int?,
+    val lockNo: Int,
 )
 
 /**

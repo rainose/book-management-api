@@ -877,9 +877,6 @@ class BookControllerIT {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validation_errors").exists())
-                .andExpect(jsonPath("$.validation_errors").isArray())
-                .andExpect(jsonPath("$.validation_errors[?(@.field == 'lockNo')].message").value("ロックナンバーは必須です"))
         }
     }
 }
