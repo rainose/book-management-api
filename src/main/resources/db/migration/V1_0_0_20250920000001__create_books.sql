@@ -10,3 +10,16 @@ CREATE TABLE m_books (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by VARCHAR(255)
 );
+
+-- Add table and column comments
+COMMENT ON TABLE m_books IS '書籍マスタテーブル';
+COMMENT ON COLUMN m_books.id IS '書籍ID（自動採番）';
+COMMENT ON COLUMN m_books.title IS '書籍タイトル';
+COMMENT ON COLUMN m_books.price IS '価格（0以上）';
+COMMENT ON COLUMN m_books.currency_code IS '通貨コード（ISO 4217形式）';
+COMMENT ON COLUMN m_books.publication_status IS '出版状態（UP:未出版, PB:出版済）';
+COMMENT ON COLUMN m_books.lock_no IS '楽観的排他制御用バージョン番号';
+COMMENT ON COLUMN m_books.created_at IS '作成日時';
+COMMENT ON COLUMN m_books.created_by IS '作成者';
+COMMENT ON COLUMN m_books.updated_at IS '更新日時';
+COMMENT ON COLUMN m_books.updated_by IS '更新者';

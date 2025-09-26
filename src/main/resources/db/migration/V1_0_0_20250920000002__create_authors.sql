@@ -8,3 +8,14 @@ CREATE TABLE m_authors (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by VARCHAR(255)
 );
+
+-- Add table and column comments
+COMMENT ON TABLE m_authors IS '著者マスタテーブル';
+COMMENT ON COLUMN m_authors.id IS '著者ID（自動採番）';
+COMMENT ON COLUMN m_authors.name IS '著者名';
+COMMENT ON COLUMN m_authors.birth_date IS '生年月日（過去の日付のみ）';
+COMMENT ON COLUMN m_authors.lock_no IS '楽観的排他制御用バージョン番号';
+COMMENT ON COLUMN m_authors.created_at IS '作成日時';
+COMMENT ON COLUMN m_authors.created_by IS '作成者';
+COMMENT ON COLUMN m_authors.updated_at IS '更新日時';
+COMMENT ON COLUMN m_authors.updated_by IS '更新者';
