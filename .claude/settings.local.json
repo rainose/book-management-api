@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(gh api:*)",
+      "Bash(git checkout:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(docker-compose:*)",
+      "Bash(find:*)",
+      "Bash(./gradlew compileTestKotlin:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(./gradlew:*)",
+      "Bash(curl:*)",
+      "Bash(javap:*)",
+      "Bash(findstr:*)",
+      "Bash(dir)",
+      "Bash(timeout:*)",
+      "Bash(docker exec:*)",
+      "WebSearch",
+      "Bash(./gradlew.bat build:*)",
+      "Bash(./gradlew.bat ktlintFormat:*)",
+      "Bash(./gradlew.bat test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

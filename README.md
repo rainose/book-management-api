@@ -252,3 +252,41 @@ docker-compose up -d
 2. **Docker Compose**: 本番では`spring.docker.compose.enabled=false`のまま使用
 3. **ログレベル**: 本番環境では適切なログレベルに調整
 4. **接続プール**: HikariCPの設定を環境に応じて調整
+
+## 実プロジェクトでの考慮事項
+
+### セキュリティ・認証
+- **認証・認可**: JWT認証またはOAuth 2.0とSpring Securityによるロールベースアクセス制御の実装
+- **Cookie・セッション管理**: HTTPOnly、Secure、SameSite属性によるセキュアなCookie設定
+- **Webセキュリティ**: CORS、CSP、HSTSなどのWeb標準セキュリティ対策
+
+### データ品質・整合性
+- **重複チェック**: 書籍タイトルや著者名の重複防止機能とユニーク制約の設定
+- **データ整合性**: トランザクション管理とデッドロック対策の実装
+
+### ユーザビリティ・保守性
+- **国際化対応**: エラーメッセージをプロパティファイルで管理し、Accept-Languageヘッダーによる多言語対応
+- **API設計**: OpenAPI仕様書の自動生成とAPIバージョニング戦略
+
+### パフォーマンス・運用
+- **パフォーマンス**: データベースインデックス、ページネーション、キャッシュ戦略の実装
+- **監視・運用**: Spring Boot Actuatorによるメトリクス取得とヘルスチェック機能
+- **テスト・品質**: 統合テスト環境の自動化とコードカバレッジ測定
+
+## 開発ツール・AI支援
+
+このプロジェクトの開発では以下のAIツールを使用：
+
+- **実装**: Claude Code - コード作成、リファクタリング、デバッグ
+- **調査・ドキュメント**: Gemini CLI - 技術調査、要件分析、ドキュメント作成
+- **コードレビュー**: Gemini Code Assistant - コード品質チェック、セキュリティ監査
+
+## 参考ガイドライン
+
+### API設計・実装方針
+- [Future Architect Web APIガイドライン](https://future-architect.github.io/arch-guidelines/documents/forWebAPI/web_api_guidelines.html)
+- [Fintan Web APIガイドライン](https://fintan.jp/page/317/)
+
+### Kotlin開発方針
+- [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
+- [Gradle Best Practices for Kotlin](https://kotlinlang.org/docs/gradle-best-practices.html)
