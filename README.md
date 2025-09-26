@@ -289,4 +289,3 @@ docker-compose up -d
 
 ### Kotlin開発方針
 - [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
-- [Gradle Best Practices for Kotlin](https://kotlinlang.org/docs/gradle-best-practices.html)
