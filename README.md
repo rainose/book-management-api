@@ -62,13 +62,30 @@ src/
 ### テーブル構成
 
 - **m_books**: 書籍情報
-  - id, title, price, currency_code, publication_status, lock_no, created_at, created_by, updated_at, updated_by
+  - id: 書籍ID（自動採番）
+  - title: 書籍タイトル
+  - price: 価格（0以上）
+  - currency_code: 通貨コード（ISO 4217形式）
+  - publication_status: 出版状態（UP:未出版, PB:出版済）
+  - lock_no: 楽観的排他制御用バージョン番号
+  - created_at: 作成日時
+  - created_by: 作成者
+  - updated_at: 更新日時
+  - updated_by: 更新者
 
 - **m_authors**: 著者情報
-  - id, name, birth_date, lock_no, created_at, created_by, updated_at, updated_by
+  - id: 著者ID（自動採番）
+  - name: 著者名
+  - birth_date: 生年月日（過去の日付のみ）
+  - lock_no: 楽観的排他制御用バージョン番号
+  - created_at: 作成日時
+  - created_by: 作成者
+  - updated_at: 更新日時
+  - updated_by: 更新者
 
-- **t_book_authors**: 書籍と著者の関係テーブル
-  - book_id, author_id
+- **t_book_authors**: 書籍と著者の関係テーブル（多対多関係）
+  - book_id: 書籍ID（m_booksテーブル参照）
+  - author_id: 著者ID（m_authorsテーブル参照）
 
 ## API エンドポイント
 
