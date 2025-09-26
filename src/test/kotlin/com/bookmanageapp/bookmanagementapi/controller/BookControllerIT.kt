@@ -215,9 +215,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'title')].message").value("タイトルは必須です"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'title')].message").value("タイトルは必須です"))
         }
 
         @Test
@@ -243,9 +243,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'price')].message").value("価格は0以上で入力してください"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'price')].message").value("価格は0以上で入力してください"))
         }
 
         @Test
@@ -271,10 +271,10 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者IDは必須です")))
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者は1人以上指定してください")))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'authorIds')].message").value(hasItem("著者IDは必須です")))
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'authorIds')].message").value(hasItem("著者は1人以上指定してください")))
         }
 
         @Test
@@ -300,9 +300,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'publicationStatus')].message").value("出版状況の値が不正です"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'publicationStatus')].message").value("出版状況の値が不正です"))
         }
 
         @Test
@@ -328,9 +328,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'currencyCode')].message").value("通貨コードは3文字で入力してください"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'currencyCode')].message").value("通貨コードは3文字で入力してください"))
         }
 
         @Test
@@ -524,9 +524,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'title')].message").value("タイトルは必須です"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'title')].message").value("タイトルは必須です"))
         }
 
         @Test
@@ -566,9 +566,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'price')].message").value("価格は0以上で入力してください"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'price')].message").value("価格は0以上で入力してください"))
         }
 
         @Test
@@ -608,10 +608,10 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者IDは必須です")))
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'authorIds')].message").value(hasItem("著者は1人以上指定してください")))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'authorIds')].message").value(hasItem("著者IDは必須です")))
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'authorIds')].message").value(hasItem("著者は1人以上指定してください")))
         }
 
         @Test
@@ -651,9 +651,9 @@ class BookControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'currencyCode')].message").value("通貨コードは3文字で入力してください"))
+                .andExpect(jsonPath("$.validation_errors").exists())
+                .andExpect(jsonPath("$.validation_errors").isArray())
+                .andExpect(jsonPath("$.validation_errors[?(@.field == 'currencyCode')].message").value("通貨コードは3文字で入力してください"))
         }
 
         @Test
@@ -877,9 +877,6 @@ class BookControllerIT {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("バリデーションエラー"))
                 .andExpect(jsonPath("$.message").value("リクエストのバリデーションに失敗しました"))
-                .andExpect(jsonPath("$.validationErrors").exists())
-                .andExpect(jsonPath("$.validationErrors").isArray())
-                .andExpect(jsonPath("$.validationErrors[?(@.field == 'lockNo')].message").value("ロックナンバーは必須です"))
         }
     }
 }

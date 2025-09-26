@@ -12,6 +12,6 @@ import java.time.LocalDate
  * @author nose yudai
  */
 interface BirthDateAware {
-    val birthDate: LocalDate?
+    val birthDate: LocalDate
     val clientTimeZone: String
 }
