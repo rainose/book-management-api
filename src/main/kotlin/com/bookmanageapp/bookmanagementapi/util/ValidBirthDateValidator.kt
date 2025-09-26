@@ -1,10 +1,11 @@
 package com.bookmanageapp.bookmanagementapi.util
 
 import com.bookmanageapp.bookmanagementapi.dto.BirthDateAware
+import com.bookmanageapp.bookmanagementapi.repository.TimeProvider
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import org.springframework.beans.factory.annotation.Autowired
 import java.time.DateTimeException
-import java.time.LocalDate
 import java.time.ZoneId
 
 /**
@@ -13,6 +14,9 @@ import java.time.ZoneId
  * @author nose yudai
  */
 class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAware> {
+    @Autowired
+    private lateinit var timeProvider: TimeProvider
+
     /**
      * 指定されたリクエストオブジェクトの生年月日が有効かどうかを検証します。
      *
@@ -31,25 +35,24 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAwa
             return true
         }
 
-        val clientTimeZoneId =
-            try {
-                ZoneId.of(request.clientTimeZone)
-            } catch (e: DateTimeException) {
-                // Invalid time zone ID provided
-                context?.disableDefaultConstraintViolation()
-                context?.buildConstraintViolationWithTemplate("無効なタイムゾーンIDが指定されました")
-                    ?.addPropertyNode("clientTimeZone")
-                    ?.addConstraintViolation()
-                return false
-            }
+        try {
+            ZoneId.of(request.clientTimeZone)
+        } catch (e: DateTimeException) {
+            // Invalid time zone ID provided
+            context?.disableDefaultConstraintViolation()
+            context?.buildConstraintViolationWithTemplate("無効なタイムゾーンIDが指定されました")
+                ?.addPropertyNode("clientTimeZone")
+                ?.addConstraintViolation()
+            return false
+        }
 
-        val clientLocalDate = LocalDate.now(clientTimeZoneId)
+        val clientLocalDate = timeProvider.getCurrentDate(request.clientTimeZone)
 
         // birthDate <= clientLocalDate
         if (requireNotNull(request.birthDate).isAfter(clientLocalDate)) {
             context?.disableDefaultConstraintViolation()
             context?.buildConstraintViolationWithTemplate(
-                context?.defaultConstraintMessageTemplate
+                context.defaultConstraintMessageTemplate
                     ?: "生年月日はクライアントのタイムゾーンにおける今日以前の日付である必要があります",
             )
                 ?.addPropertyNode("birthDate")
