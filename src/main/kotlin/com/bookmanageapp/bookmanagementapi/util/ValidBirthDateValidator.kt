@@ -26,16 +26,11 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAwa
         request: BirthDateAware?,
         context: ConstraintValidatorContext?,
     ): Boolean {
-        if (request == null || request.clientTimeZone.isBlank()) {
-            // Let other @NotNull/@NotBlank handle nulls/blanks
-            return true
-        }
-
-        val birthDate = request.birthDate
-        if (birthDate == null) {
+        if (request == null || request.clientTimeZone.isBlank() || request.birthDate == null) {
             // nullの場合は@NotNullに適切なエラーメッセージ表示を委ね、このvalidatorはパスする
             return true
         }
+
         val clientTimeZoneId =
             try {
                 ZoneId.of(request.clientTimeZone)
@@ -51,7 +46,7 @@ class ValidBirthDateValidator : ConstraintValidator<ValidBirthDate, BirthDateAwa
         val clientLocalDate = LocalDate.now(clientTimeZoneId)
 
         // birthDate <= clientLocalDate
-        if (birthDate.isAfter(clientLocalDate)) {
+        if (requireNotNull(request.birthDate).isAfter(clientLocalDate)) {
             context?.disableDefaultConstraintViolation()
             context?.buildConstraintViolationWithTemplate(
                 context?.defaultConstraintMessageTemplate

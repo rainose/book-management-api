@@ -39,8 +39,7 @@ class AuthorService(
                 name = request.name.trim(),
                 birthDate = requireNotNull(request.birthDate),
             )
-        val authorId = authorRepository.create(author)
-        return requireNotNull(authorId)
+        return authorRepository.create(author)
     }
 
     /**
@@ -101,7 +100,7 @@ class AuthorService(
         val bookSummaryResponses =
             books.map { book ->
                 BookResponse(
-                    id = requireNotNull(book.id),
+                    id = book.id,
                     title = book.title,
                     price = book.price,
                     currencyCode = book.currencyCode,

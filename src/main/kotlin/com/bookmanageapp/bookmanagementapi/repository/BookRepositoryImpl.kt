@@ -22,7 +22,7 @@ class BookRepositoryImpl(
     /**
      * {@inheritDoc}
      */
-    override fun create(book: NewBook): Long? {
+    override fun create(book: NewBook): Long {
         val now = LocalDateTime.now()
 
         return dslContext.transactionResult { configuration ->
@@ -45,18 +45,11 @@ class BookRepositoryImpl(
                     .fetchOne()
                     ?.value1()
 
-            if (bookId != null && book.authorIds.isNotEmpty()) {
-                // 書籍と著者の関連をt_book_authorsテーブルに一括挿入
-                val insertQueries =
-                    book.authorIds.map { authorId ->
-                        transactionDsl.insertInto(T_BOOK_AUTHORS)
-                            .set(T_BOOK_AUTHORS.BOOK_ID, bookId)
-                            .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
-                    }
-                transactionDsl.batch(insertQueries).execute()
-            }
+            val finalBookId = requireNotNull(bookId)
+            // 書籍と著者の関連をt_book_authorsテーブルに一括挿入
+            insertBookAuthors(transactionDsl, finalBookId, book.authorIds)
 
-            bookId
+            finalBookId
         }
     }
 
@@ -124,15 +117,7 @@ class BookRepositoryImpl(
                     .execute()
 
                 // 新しい著者関連を一括挿入
-                if (book.authorIds.isNotEmpty()) {
-                    val insertQueries =
-                        book.authorIds.map { authorId ->
-                            transactionDsl.insertInto(T_BOOK_AUTHORS)
-                                .set(T_BOOK_AUTHORS.BOOK_ID, book.id)
-                                .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
-                        }
-                    transactionDsl.batch(insertQueries).execute()
-                }
+                insertBookAuthors(transactionDsl, book.id, book.authorIds)
             }
 
             updatedRows
@@ -189,5 +174,19 @@ class BookRepositoryImpl(
                 lockNo = requireNotNull(record.lockNo),
             )
         }
+    }
+
+    private fun insertBookAuthors(
+        dsl: DSLContext,
+        bookId: Long,
+        authorIds: List<Long>,
+    ) {
+        val insertQueries =
+            authorIds.map { authorId ->
+                dsl.insertInto(T_BOOK_AUTHORS)
+                    .set(T_BOOK_AUTHORS.BOOK_ID, bookId)
+                    .set(T_BOOK_AUTHORS.AUTHOR_ID, authorId)
+            }
+        dsl.batch(insertQueries).execute()
     }
 }

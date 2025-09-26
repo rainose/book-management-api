@@ -13,9 +13,9 @@ interface BookRepository {
      * 新しい書籍をデータベースに作成します。
      *
      * @param book 作成する書籍情報（IDなし）
-     * @return 作成された書籍のID。作成に失敗した場合はnull
+     * @return 作成された書籍のID
      */
-    fun create(book: NewBook): Long?
+    fun create(book: NewBook): Long
 
     /**
      * 既存の書籍を更新します。

@@ -13,9 +13,9 @@ interface AuthorRepository {
      * 新しい著者をデータベースに作成します。
      *
      * @param author 作成する著者情報（IDなし）
-     * @return 作成された著者のID。作成に失敗した場合はnull
+     * @return 作成された著者のID
      */
-    fun create(author: NewAuthor): Long?
+    fun create(author: NewAuthor): Long
 
     /**
      * 既存の著者を更新します。

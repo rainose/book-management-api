@@ -54,8 +54,7 @@ class BookService(
                 authorIds = uniqueAuthorIds,
             )
 
-        val bookId = bookRepository.create(book)
-        return requireNotNull(bookId)
+        return bookRepository.create(book)
     }
 
     /**

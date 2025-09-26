@@ -35,7 +35,7 @@ data class NewBook(
  * @author nose yudai
  */
 data class Book(
-    val id: Long? = null,
+    val id: Long,
     val title: String,
     val price: BigDecimal,
     val currencyCode: String,

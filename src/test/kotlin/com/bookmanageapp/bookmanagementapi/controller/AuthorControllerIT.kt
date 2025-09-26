@@ -80,8 +80,7 @@ class AuthorControllerIT {
         name: String,
         birthDate: LocalDate,
     ): Long {
-        val authorId = authorRepository.create(NewAuthor(name = name, birthDate = birthDate))
-        return requireNotNull(authorId)
+        return authorRepository.create(NewAuthor(name = name, birthDate = birthDate))
     }
 
     private fun createTestBook(
@@ -99,8 +98,7 @@ class AuthorControllerIT {
                 publicationStatus = publicationStatus,
                 authorIds = authorIds,
             )
-        val bookId = bookRepository.create(newBook)
-        return requireNotNull(bookId)
+        return bookRepository.create(newBook)
     }
 
     private fun findAuthorById(id: Long) =

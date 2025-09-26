@@ -62,20 +62,22 @@ class AuthorRepositoryImpl(
     /**
      * {@inheritDoc}
      */
-    override fun create(author: NewAuthor): Long? {
+    override fun create(author: NewAuthor): Long {
         val now = LocalDateTime.now()
-        return dslContext
-            .insertInto(M_AUTHORS)
-            .set(M_AUTHORS.NAME, author.name)
-            .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
-            .set(M_AUTHORS.LOCK_NO, author.lockNo)
-            .set(M_AUTHORS.CREATED_AT, now)
-            .set(M_AUTHORS.CREATED_BY, "api_executer")
-            .set(M_AUTHORS.UPDATED_AT, now)
-            .set(M_AUTHORS.UPDATED_BY, "api_executer")
-            .returningResult(M_AUTHORS.ID)
-            .fetchOne()
-            ?.value1()
+        val authorId =
+            dslContext
+                .insertInto(M_AUTHORS)
+                .set(M_AUTHORS.NAME, author.name)
+                .set(M_AUTHORS.BIRTH_DATE, author.birthDate)
+                .set(M_AUTHORS.LOCK_NO, author.lockNo)
+                .set(M_AUTHORS.CREATED_AT, now)
+                .set(M_AUTHORS.CREATED_BY, "api_executer")
+                .set(M_AUTHORS.UPDATED_AT, now)
+                .set(M_AUTHORS.UPDATED_BY, "api_executer")
+                .returningResult(M_AUTHORS.ID)
+                .fetchOne()
+                ?.value1()
+        return requireNotNull(authorId)
     }
 
     /**
