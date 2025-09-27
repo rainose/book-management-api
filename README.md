@@ -8,10 +8,20 @@
 - **フレームワーク**: Spring Boot 3.5.5
 - **データベース**: PostgreSQL
 - **ORM**: jOOQ 3.19.8
-- **マイグレーション**: Flyway
+- **マイグレーション**: Flyway 11.11.2
 - **ビルドツール**: Gradle (Groovy)
 - **Java**: 17 (Amazon Corretto)
 - **コンテナ**: Docker, Docker Compose
+- **テスト**: JUnit 5, MockK, Testcontainers
+- **バリデーション**: Bean Validation + カスタムバリデーター
+
+### Gradleプラグイン
+- **Spring Boot Plugin**: アプリケーション実行・パッケージング (`org.springframework.boot` 3.5.5)
+- **Kotlin Plugin**: Kotlinコンパイル (`org.jetbrains.kotlin.jvm` 1.9.25)
+- **Kotlin Spring Plugin**: Spring向けKotlin最適化 (`org.jetbrains.kotlin.plugin.spring` 1.9.25)
+- **jOOQ Codegen Plugin**: データベーススキーマからKotlinコード自動生成 (`org.jooq.jooq-codegen-gradle` 3.19.8)
+- **Flyway Plugin**: データベースマイグレーション管理 (`org.flywaydb.flyway` 11.11.2)
+- **ktlint Plugin**: Kotlinコードフォーマット・リント (`org.jlleitschuh.gradle.ktlint` 12.1.1)
 
 ## プロジェクト構造
 
