@@ -1,36 +1,28 @@
 import org.jooq.codegen.gradle.CodegenTask
 
 buildscript {
-    repositories {
-        mavenCentral()
-    }
     dependencies {
-        classpath "org.flywaydb:flyway-database-postgresql:11.11.2"
-        classpath "org.postgresql:postgresql:42.7.4"
+        classpath "org.flywaydb:flyway-database-postgresql:${libs.versions.flyway.get()}"
+        classpath "org.postgresql:postgresql:${libs.versions.postgresql.get()}"
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
-    id 'org.springframework.boot' version '3.5.5'
-    id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.jooq.jooq-codegen-gradle' version '3.19.8'
-    id 'org.flywaydb.flyway' version '11.11.2'
-    id "org.jlleitschuh.gradle.ktlint" version "12.1.1"
-}
-
-ktlint {
-    filter {
-        exclude("**/src/main/generated/**")
-    }
+    id 'java'
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.jooq.codegen)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.ktlint)
 }
 
 group = 'com.bookmanageapp'
 version = '0.0.1-SNAPSHOT'
 description = '書籍管理システムのバックエンドAPI'
 
-// データベース接続情報をgradle.propertiesと環境変数から読み込む
+// データベース接続情報を環境変数から読み込む
 ext {
     dbHost = System.getenv('DB_HOST') ?: project.findProperty('dbHost') ?: 'localhost'
     dbPort = System.getenv('DB_PORT') ?: project.findProperty('dbPort') ?: '5432'
@@ -38,6 +30,13 @@ ext {
     dbUser = System.getenv('DB_USER') ?: project.findProperty('dbUser') ?: 'bookmanage_dev'
     dbPassword = System.getenv('DB_PASSWORD') ?: project.findProperty('dbPassword') ?: 'secret'
     dbUrl = "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
+}
+
+
+ktlint {
+    filter {
+        exclude { element -> element.file.path.contains("generated") }
+    }
 }
 
 java {
@@ -52,38 +51,36 @@ repositories {
 
 dependencies {
     // Spring Boot Core
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-jooq'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    
+    implementation libs.spring.boot.starter.web
+    implementation libs.spring.boot.starter.jooq
+    implementation libs.spring.boot.starter.validation
+
     // Database
-    implementation 'org.flywaydb:flyway-core'
-    implementation 'org.flywaydb:flyway-database-postgresql'
-    implementation 'org.jooq:jooq-postgres-extensions:3.19.8'
-    implementation 'org.postgresql:postgresql'
-    
+    implementation libs.flyway.core
+    implementation libs.flyway.database.postgresql
+    implementation libs.jooq.postgres.extensions
+    implementation libs.postgresql
+
     // Kotlin
-    implementation 'org.jetbrains.kotlin:kotlin-reflect'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    
+    implementation libs.kotlin.reflect
+    implementation libs.jackson.module.kotlin
+
     // Development
-    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-    
+    developmentOnly libs.spring.boot.docker.compose
+
     // Testing
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-    testImplementation 'io.mockk:mockk:1.13.12'
-    testImplementation 'org.testcontainers:postgresql'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.kotlin.test.junit5
+    testImplementation libs.mockk
+    testImplementation libs.testcontainers.postgresql
+    testImplementation libs.testcontainers.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
 
     // jOOQ コード生成用の依存関係
-    jooqCodegen 'org.postgresql:postgresql'
-    jooqCodegen 'org.jooq:jooq-codegen:3.19.8'
-    jooqCodegen 'org.jooq:jooq-meta-extensions:3.19.8'
-    jooqCodegen 'org.jooq:jooq-postgres-extensions:3.19.8'
-
-    
+    jooqCodegen libs.postgresql
+    jooqCodegen libs.jooq.codegen
+    jooqCodegen libs.jooq.meta.extensions
+    jooqCodegen libs.jooq.postgres.extensions
 }
 
 kotlin {
@@ -101,7 +98,9 @@ flyway {
     user = dbUser
     password = dbPassword
     locations = ["classpath:db/migration"]
+    driver = 'org.postgresql.Driver'
 }
+
 
 
 jooq {
@@ -173,4 +172,10 @@ tasks.named('compileKotlin') {
     mustRunAfter tasks.withType(CodegenTask)
 }
 
-sourceSets.main.java.srcDirs += 'src/main/generated'
+sourceSets {
+    main {
+        java {
+            srcDirs += 'src/main/generated'
+        }
+    }
+}
