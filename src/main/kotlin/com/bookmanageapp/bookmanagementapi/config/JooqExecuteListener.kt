@@ -1,7 +1,7 @@
 package com.bookmanageapp.bookmanagementapi.config
 
 import org.jooq.ExecuteContext
-import org.jooq.impl.DefaultExecuteListener
+import org.jooq.ExecuteListener
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
  * @author nose yudai
  */
 @Component
-class JooqExecuteListener : DefaultExecuteListener() {
+class JooqExecuteListener : ExecuteListener {
     private val logger = LoggerFactory.getLogger(JooqExecuteListener::class.java)
 
     /**
