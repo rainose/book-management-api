@@ -268,7 +268,7 @@ docker-compose up -d
 ### セキュリティ・認証
 - **認証・認可**: JWT認証またはOAuth 2.0とSpring Securityによるロールベースアクセス制御の実装
 - **Cookie・セッション管理**: HTTPOnly、Secure、SameSite属性によるセキュアなCookie設定
-- **Webセキュリティ**: CORS、CSP、HSTSなどのWeb標準セキュリティ対策
+- **Webセキュリティ**: CORS、CSRF、CSP、HSTSなどのWeb標準セキュリティ対策のSpring Securityによる実装
 
 ### データ品質・整合性
 - **重複チェック**: 書籍タイトルや著者名の重複防止機能とユニーク制約の設定
