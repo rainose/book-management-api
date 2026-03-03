@@ -299,3 +299,7 @@ docker-compose up -d
 
 ### Kotlin開発方針
 - [Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html)
+
+## よくある質問（Copilot）
+
+- **Windows版 VS Code の GitHub Copilot で「codex」に切り替わらない**: Codex は提供終了しており VS Code 拡張でも選択できません。ドロップダウンに表示されていても非活性なので、拡張機能を最新版に更新したうえで利用可能なモデル（例: GPT-4o/Claude）を選択してください。Codexを明示的に選ぶ方法はありません。
